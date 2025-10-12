@@ -9,9 +9,15 @@ import SwiftUI
 
 @main
 struct T2CApp: App {
+
+    init() {
+        // Suppress simulator haptic warnings
+        HapticUtil.disableKeyboardHaptics()
+    }
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            MainView()
         }
     }
 }
