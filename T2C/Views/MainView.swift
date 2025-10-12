@@ -11,6 +11,7 @@ import EventKit
 struct MainView: View {
 
     @StateObject private var viewModel = MainViewModel()
+    @FocusState private var isInputFocused: Bool
 
     var body: some View {
         VStack(spacing: 0) {
@@ -71,6 +72,25 @@ struct MainView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
+
+            // Quick input chips
+            HStack(spacing: 8) {
+                ForEach(["Today 6pm", "Tomorrow 9am", "Next Monday 2pm"], id: \.self) { chipText in
+                    Button(action: {
+                        viewModel.text = chipText
+                        isInputFocused = true
+                    }) {
+                        Text(chipText)
+                            .font(.caption)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Color(.secondarySystemBackground))
+                            .foregroundColor(.primary)
+                            .cornerRadius(12)
+                    }
+                }
+            }
+            .padding(.top, 8)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -108,6 +128,14 @@ struct MainView: View {
                         Text(event.start, style: .date)
                         Text("\(event.start, style: .time) – \(event.end ?? event.start, style: .time)")
                             .foregroundStyle(.secondary)
+
+                        // Past time warning
+                        if DateUtil.isPast(event.start) {
+                            Label("This time is in the past", systemImage: "exclamationmark.triangle")
+                                .font(.caption)
+                                .foregroundStyle(.orange)
+                                .padding(.top, 2)
+                        }
                     }
                 } icon: {
                     Image(systemName: "clock")
@@ -220,6 +248,7 @@ struct MainView: View {
                 .padding(.vertical, 10)
                 .lineLimit(1...10)
                 .textInputAutocapitalization(.sentences)
+                .focused($isInputFocused)
                 .background(Color(.systemBackground))
                 .cornerRadius(18)
                 .overlay(
@@ -228,6 +257,7 @@ struct MainView: View {
                 )
 
             Button(action: {
+                isInputFocused = false
                 Task {
                     await viewModel.parse()
                 }

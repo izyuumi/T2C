@@ -36,6 +36,11 @@ final class MainViewModel: ObservableObject {
     private let parser = NLParser()
     private let calendar = CalendarService()
 
+    // MARK: - Timeout Configuration
+
+    private let parseTimeout: TimeInterval = 30.0  // 30 seconds for LLM parsing
+    private let saveTimeout: TimeInterval = 10.0   // 10 seconds for calendar save
+
     // MARK: - Public Methods
 
     /// Parse the input text into a calendar event
@@ -51,7 +56,9 @@ final class MainViewModel: ObservableObject {
         state = .parsing
 
         do {
-            var event = try await parser.parse(trimmedText, tz: .current)
+            var event = try await withTimeout(parseTimeout) {
+                try await self.parser.parse(trimmedText, tz: .current)
+            }
 
             // Apply default duration if end is nil
             event.end = event.end ?? event.start.addingTimeInterval(DateUtil.defaultDuration)
@@ -80,11 +87,13 @@ final class MainViewModel: ObservableObject {
         state = .saving
 
         do {
-            // Request calendar permission if needed
-            try await calendar.requestWriteOnlyIfNeeded()
+            try await withTimeout(saveTimeout) {
+                // Request calendar permission if needed
+                try await self.calendar.requestWriteOnlyIfNeeded()
 
-            // Save the event
-            try calendar.add(event)
+                // Save the event
+                try self.calendar.add(event)
+            }
 
             logger.info("save: success, transitioning to saved state")
             state = .saved(event)
@@ -104,5 +113,41 @@ final class MainViewModel: ObservableObject {
         logger.debug("reset: returning to idle state")
         text = ""
         state = .idle
+    }
+
+    // MARK: - Private Helpers
+
+    /// Executes an async operation with a timeout
+    private func withTimeout<T>(
+        _ timeout: TimeInterval,
+        operation: @escaping () async throws -> T
+    ) async throws -> T {
+        try await withThrowingTaskGroup(of: T.self) { group in
+            // Start the operation
+            group.addTask {
+                try await operation()
+            }
+
+            // Start the timeout task
+            group.addTask {
+                try await Task.sleep(nanoseconds: UInt64(timeout * 1_000_000_000))
+                throw TimeoutError.operationTimedOut
+            }
+
+            // Return the first result (either success or timeout)
+            let result = try await group.next()!
+            group.cancelAll()
+            return result
+        }
+    }
+}
+
+// MARK: - Timeout Error
+
+enum TimeoutError: LocalizedError {
+    case operationTimedOut
+
+    var errorDescription: String? {
+        "Operation timed out. Please try again."
     }
 }
