@@ -69,10 +69,12 @@
 "error.generic" = "无法理解。请尝试添加时间或日期。";
 "error.date_format" = "无法理解日期格式。请更具体地描述。";
 "error.permission_denied" = "日历访问被拒绝。请在设置中启用。";
+"error.input_too_long" = "文本太长。";
 
 // MARK: - Error Suggestions
 "suggestion.simpler" = "尝试更简单的表达";
 "suggestion.break_events" = "拆分为多个活动";
+"suggestion.shorter_text" = "尝试更短的文本（最多500字符）";
 "suggestion.clear_format" = "使用清晰的日期/时间格式";
 "suggestion.add_date" = "添加具体日期如「明天」或「下周二」";
 "suggestion.add_time" = "添加具体时间如「下午2点」";

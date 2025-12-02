@@ -121,6 +121,48 @@ final class NLParser {
 
             Distribute information appropriately: don't dump everything into title, and don't leave out details.
             Capture all user-provided information across the appropriate fields.
+
+            Examples for each language:
+
+            English:
+            Input: "Lunch with Alex next Tue 1pm @Shibuya"
+            Output: {"title": "Lunch with Alex", "start": "2025-12-09T13:00:00+09:00", "location": "Shibuya"}
+
+            Input: "Team standup every Monday 9am until March"
+            Output: {"title": "Team standup", "start": "2025-12-02T09:00:00+09:00", "recurrenceFrequency": "weekly", "recurrenceInterval": 1, "recurrenceEndDate": "2026-03-31T23:59:59+09:00"}
+
+            Japanese (日本語):
+            Input: "明日 14時 ランチ @渋谷"
+            Output: {"title": "ランチ", "start": "2025-12-03T14:00:00+09:00", "location": "渋谷"}
+
+            Input: "毎週月曜日 朝9時 チームミーティング"
+            Output: {"title": "チームミーティング", "start": "2025-12-02T09:00:00+09:00", "recurrenceFrequency": "weekly", "recurrenceInterval": 1}
+
+            Chinese (中文):
+            Input: "明天下午2点 和小明吃饭 在星巴克"
+            Output: {"title": "和小明吃饭", "start": "2025-12-03T14:00:00+08:00", "location": "星巴克"}
+
+            Input: "每周五 下午3点 团队会议"
+            Output: {"title": "团队会议", "start": "2025-12-06T15:00:00+08:00", "recurrenceFrequency": "weekly", "recurrenceInterval": 1}
+
+            Korean (한국어):
+            Input: "내일 오후 2시 점심 약속 강남에서"
+            Output: {"title": "점심 약속", "start": "2025-12-03T14:00:00+09:00", "location": "강남"}
+
+            Input: "매주 월요일 오전 10시 팀 미팅"
+            Output: {"title": "팀 미팅", "start": "2025-12-02T10:00:00+09:00", "recurrenceFrequency": "weekly", "recurrenceInterval": 1}
+
+            Spanish (Español):
+            Input: "Almuerzo mañana a las 2pm en el centro"
+            Output: {"title": "Almuerzo", "start": "2025-12-03T14:00:00-05:00", "location": "el centro"}
+
+            French (Français):
+            Input: "Réunion demain à 14h au bureau"
+            Output: {"title": "Réunion", "start": "2025-12-03T14:00:00+01:00", "location": "bureau"}
+
+            German (Deutsch):
+            Input: "Meeting morgen um 14 Uhr im Büro"
+            Output: {"title": "Meeting", "start": "2025-12-03T14:00:00+01:00", "location": "Büro"}
             """
         }
     }

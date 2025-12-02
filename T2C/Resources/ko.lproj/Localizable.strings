@@ -69,10 +69,12 @@
 "error.generic" = "이해할 수 없습니다. 시간이나 날짜를 추가해 보세요.";
 "error.date_format" = "날짜 형식을 이해할 수 없습니다. 더 구체적으로 입력해 주세요.";
 "error.permission_denied" = "캘린더 접근이 거부되었습니다. 설정에서 활성화해 주세요.";
+"error.input_too_long" = "텍스트가 너무 깁니다。";
 
 // MARK: - Error Suggestions
 "suggestion.simpler" = "더 간단한 표현 시도";
 "suggestion.break_events" = "여러 일정으로 나누기";
+"suggestion.shorter_text" = "더 짧은 텍스트를 시도하세요 (최대 500자)";
 "suggestion.clear_format" = "명확한 날짜/시간 형식 사용";
 "suggestion.add_date" = "「내일」이나 「다음 주 화요일」 같은 날짜 추가";
 "suggestion.add_time" = "「오후 2시」 같은 시간 추가";

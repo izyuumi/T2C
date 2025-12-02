@@ -54,12 +54,80 @@ final class MainViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let parser = NLParser()
-    private let calendar = CalendarService()
+    let calendar = CalendarService()  // Internal for template integration
+    private let analytics = AnalyticsService.shared
+
+    // MARK: - Undo Support
+
+    @Published var canUndo: Bool = false
+    private var lastSavedEventId: String?
+    private var undoTimer: Timer?
+    private let undoWindow: TimeInterval = 10.0  // 10 seconds to undo
 
     // MARK: - Timeout Configuration
 
     private let parseTimeout: TimeInterval = 30.0  // 30 seconds for LLM parsing
     private let saveTimeout: TimeInterval = 10.0   // 10 seconds for calendar save
+
+    // MARK: - Timezone Override
+
+    /// Get the timezone to use (override or system default)
+    private var effectiveTimezone: TimeZone {
+        let override = UserDefaults.standard.string(forKey: "timezoneOverride") ?? ""
+        if override.isEmpty {
+            return .current
+        }
+        return TimeZone(identifier: override) ?? .current
+    }
+
+    // MARK: - Draft Persistence
+
+    private let draftKey = "draftEvent"
+
+    /// Save current draft to UserDefaults
+    private func saveDraft() {
+        guard let event = editableEvent else {
+            UserDefaults.standard.removeObject(forKey: draftKey)
+            return
+        }
+        if let encoded = try? JSONEncoder().encode(event) {
+            UserDefaults.standard.set(encoded, forKey: draftKey)
+            logger.debug("saveDraft: saved draft event")
+        }
+    }
+
+    /// Load draft from UserDefaults
+    func loadDraft() -> CalendarEvent? {
+        guard let data = UserDefaults.standard.data(forKey: draftKey),
+              let event = try? JSONDecoder().decode(CalendarEvent.self, from: data) else {
+            return nil
+        }
+        logger.debug("loadDraft: restored draft event")
+        return event
+    }
+
+    /// Clear saved draft
+    func clearDraft() {
+        UserDefaults.standard.removeObject(forKey: draftKey)
+        logger.debug("clearDraft: removed draft")
+    }
+
+    /// Check if there's a saved draft
+    var hasDraft: Bool {
+        UserDefaults.standard.data(forKey: draftKey) != nil
+    }
+
+    /// Restore draft to preview state
+    func restoreDraft() {
+        if let draft = loadDraft() {
+            editableEvent = draft
+            availableCalendars = calendar.getCalendars()
+            selectedCalendarId = draft.selectedCalendarId ?? calendar.getDefaultCalendar()?.calendarIdentifier
+            state = .preview(draft)
+            logger.info("restoreDraft: restored to preview state")
+        }
+    }
+
 
     // MARK: - Public Methods
 
@@ -72,13 +140,38 @@ final class MainViewModel: ObservableObject {
             return
         }
 
+        // Validate input length (max 500 characters)
+        let maxInputLength = 500
+        if trimmedText.count > maxInputLength {
+            logger.warning("parse: input too long \(trimmedText.count) chars), showing error")
+            let parseError = ParseError(
+                message: String(localized: "error.input_too_long"),
+                suggestions: [
+                    String(localized: "suggestion.shorter_text"),
+                    String(localized: "suggestion.break_events")
+                ],
+                partialResult: nil
+            )
+            state = .error(parseError)
+            return
+        }
+
+
         logger.info("parse: starting for text='\(trimmedText)'")
         state = .parsing
 
+        // Track parse attempt
+        analytics.trackParseAttempt()
+        let parseStart = Date()
+
         do {
             var event = try await withTimeout(parseTimeout) {
-                try await self.parser.parse(trimmedText, tz: .current)
+                try await self.parser.parse(trimmedText, tz: self.effectiveTimezone)
             }
+
+            // Track parse success
+            let parseTime = Date().timeIntervalSince(parseStart) * 1000
+            analytics.trackParseSuccess(durationMs: parseTime)
 
             // Apply default duration from settings if end is nil
             if event.end == nil {
@@ -88,18 +181,36 @@ final class MainViewModel: ObservableObject {
                 event.wasEndTimeInferred = true
             }
 
-            // Load available calendars and set default
-            availableCalendars = calendar.getCalendars()
-            selectedCalendarId = calendar.getDefaultCalendar()?.calendarIdentifier
+            // Validate recurrence end date is after start
+            if var recurrence = event.recurrence,
+               let endDate = recurrence.endDate,
+               endDate <= event.start {
+                logger.warning("parse: recurrence end date is before start, removing recurrence end date")
+                recurrence.endDate = nil
+                event.recurrence = recurrence
+            }
 
             // Set editable event for preview editing
             editableEvent = event
+
+            // Save draft for persistence
+            saveDraft()
+
+            // Request calendar permission proactively (before showing preview)
+            await requestCalendarPermissionIfNeeded()
+
+            // Load available calendars and set default
+            availableCalendars = calendar.getCalendars()
+            selectedCalendarId = calendar.getDefaultCalendar()?.calendarIdentifier
 
             logger.info("parse: success, transitioning to preview state")
             state = .preview(event)
 
         } catch {
             logger.error("parse: failed with error=\(error.localizedDescription)")
+
+            // Track parse failure
+            analytics.trackParseFailure(isTimeout: error is TimeoutError)
 
             // Create structured error with suggestions
             let parseError = createParseError(from: error, text: trimmedText)
@@ -129,7 +240,15 @@ final class MainViewModel: ObservableObject {
                 try self.calendar.add(event)
             }
 
+            // Capture the event identifier for undo
+            self.lastSavedEventId = self.calendar.lastSavedEventId
+            self.startUndoTimer()
+
+            // Track event saved
+            analytics.trackEventSaved(isRecurring: event.recurrence != nil)
+
             logger.info("save: success, transitioning to saved state")
+            clearDraft()
             state = .saved(event)
 
         } catch {
@@ -152,7 +271,59 @@ final class MainViewModel: ObservableObject {
     func reset() {
         logger.debug("reset: returning to idle state")
         text = ""
+        clearDraft()
         state = .idle
+    }
+
+    /// Undo the last saved event
+    func undoLastSave() async {
+        guard let eventId = lastSavedEventId else {
+            logger.warning("undoLastSave: no event to undo")
+            return
+        }
+
+        do {
+            try calendar.deleteEvent(identifier: eventId)
+            logger.info("undoLastSave: successfully deleted event \(eventId)")
+            canUndo = false
+            lastSavedEventId = nil
+            undoTimer?.invalidate()
+
+            // Track undo
+            analytics.trackUndo()
+
+            // Return to idle state
+            state = .idle
+        } catch {
+            logger.error("undoLastSave: failed to delete event: \(error.localizedDescription)")
+        }
+    }
+
+    private func startUndoTimer() {
+        undoTimer?.invalidate()
+        canUndo = true
+        undoTimer = Timer.scheduledTimer(withTimeInterval: undoWindow, repeats: false) { [weak self] _ in
+            Task { @MainActor in
+                self?.canUndo = false
+                self?.lastSavedEventId = nil
+            }
+        }
+    }
+
+    /// Request calendar permission proactively (call after successful parse)
+    private func requestCalendarPermissionIfNeeded() async {
+        let status = EKEventStore.authorizationStatus(for: .event)
+        if status == .notDetermined {
+            do {
+                try await calendar.requestWriteOnlyIfNeeded()
+                logger.info("requestCalendarPermissionIfNeeded: permission granted")
+                // Refresh available calendars after permission granted
+                availableCalendars = calendar.getCalendars()
+                selectedCalendarId = calendar.getDefaultCalendar()?.calendarIdentifier
+            } catch {
+                logger.warning("requestCalendarPermissionIfNeeded: permission denied or error: \(error.localizedDescription)")
+            }
+        }
     }
 
     // MARK: - Private Helpers
@@ -216,11 +387,32 @@ final class MainViewModel: ObservableObject {
         )
     }
 
-    /// Extract potential title from text (first few words)
+    /// Extract potential title from text, removing date/time keywords
     private func extractPotentialTitle(from text: String) -> String? {
-        let words = text.split(separator: " ").prefix(5)
+        var words = text.split(separator: " ").map(String.init)
+
+        // Remove common date/time keywords
+        let dateTimeKeywords = Set([
+            // English
+            "tomorrow", "today", "next", "this", "at", "on", "am", "pm",
+            "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday",
+            // Japanese
+            "明日", "今日", "来週", "午前", "午後",
+            // Chinese
+            "明天", "今天", "下周", "上午", "下午",
+            // Korean
+            "내일", "오늘", "오전", "오후"
+        ])
+
+        words = words.filter { word in
+            let lower = word.lowercased()
+            // Keep if not a date keyword and not a pure time pattern
+            return !dateTimeKeywords.contains(lower) &&
+                   word.range(of: #"^\d{1,2}(:\d{2})?(am|pm)?$"#, options: [.regularExpression, .caseInsensitive]) == nil
+        }
+
         guard !words.isEmpty else { return nil }
-        return words.joined(separator: " ")
+        return words.prefix(5).joined(separator: " ")
     }
 
     /// Check if text contains common date keywords (multi-language)

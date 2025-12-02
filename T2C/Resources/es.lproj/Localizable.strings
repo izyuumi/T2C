@@ -69,10 +69,12 @@
 "error.generic" = "No se pudo entender. Intenta añadir una hora o fecha.";
 "error.date_format" = "No se pudo entender el formato de fecha. Intenta ser más específico.";
 "error.permission_denied" = "Acceso al calendario denegado. Por favor, habilítalo en Ajustes.";
+"error.input_too_long" = "El texto es demasiado largo.";
 
 // MARK: - Error Suggestions
 "suggestion.simpler" = "Prueba una frase más simple";
 "suggestion.break_events" = "Divide en eventos separados";
+"suggestion.shorter_text" = "Prueba un texto más corto (máx. 500 caracteres)";
 "suggestion.clear_format" = "Usa un formato de fecha/hora claro";
 "suggestion.add_date" = "Añade una fecha como 'mañana' o 'próximo martes'";
 "suggestion.add_time" = "Añade una hora como '14h'";

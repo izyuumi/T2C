@@ -13,6 +13,33 @@ struct SettingsView: View {
     // Settings stored in UserDefaults via @AppStorage
     @AppStorage("defaultDuration") private var defaultDuration: Int = 60 // minutes
     @AppStorage("hapticFeedback") private var hapticFeedback: Bool = true
+    @AppStorage("timezoneOverride") private var timezoneOverride: String = ""  // empty = use system
+
+    // MARK: - Timezone Helpers
+
+    private var commonTimezones: [String] {
+        [
+            "",  // System default
+            "America/New_York",
+            "America/Los_Angeles",
+            "America/Chicago",
+            "Europe/London",
+            "Europe/Paris",
+            "Europe/Berlin",
+            "Asia/Tokyo",
+            "Asia/Shanghai",
+            "Asia/Seoul",
+            "Australia/Sydney",
+            "Pacific/Auckland"
+        ]
+    }
+
+    private func timezoneDisplayName(_ identifier: String) -> String {
+        if identifier.isEmpty {
+            return String(localized: "settings.timezone.system")
+        }
+        return TimeZone(identifier: identifier)?.localizedName(for: .standard, locale: .current) ?? identifier
+    }
 
     var body: some View {
         NavigationStack {
@@ -28,6 +55,19 @@ struct SettingsView: View {
                     Text("settings.section.defaults", tableName: nil, bundle: .main, comment: "Defaults section")
                 } footer: {
                     Text("settings.default_duration.footer", tableName: nil, bundle: .main, comment: "Duration footer")
+                }
+
+                // MARK: - Timezone
+                Section {
+                    Picker(String(localized: "settings.timezone"), selection: $timezoneOverride) {
+                        ForEach(commonTimezones, id: \.self) { tz in
+                            Text(timezoneDisplayName(tz)).tag(tz)
+                        }
+                    }
+                } header: {
+                    Text("settings.section.timezone", tableName: nil, bundle: .main, comment: "Timezone section")
+                } footer: {
+                    Text("settings.timezone.footer", tableName: nil, bundle: .main, comment: "Timezone footer")
                 }
 
                 // MARK: - Feedback

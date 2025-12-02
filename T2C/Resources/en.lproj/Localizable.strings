@@ -33,6 +33,7 @@
 "preview.field.calendar" = "Calendar";
 "preview.warning.past_time" = "This time is in the past";
 "preview.button.add" = "Add to Calendar";
+"preview.button.cancel" = "Cancel";
 
 // MARK: - Recurrence
 "recurrence.every" = "Every";
@@ -46,6 +47,24 @@
 "recurrence.years" = "years";
 "recurrence.until" = "until";
 
+// MARK: - Recurrence Editor
+"preview.recurrence.add" = "Add repeat";
+"preview.recurrence.add.hint" = "Make this a recurring event";
+"preview.recurrence.edit" = "Edit repeat";
+"preview.recurrence.remove" = "Remove repeat";
+"recurrence.editor.title" = "Repeat";
+"recurrence.editor.frequency" = "Frequency";
+"recurrence.editor.every" = "Every";
+"recurrence.editor.has_end" = "End Repeat";
+"recurrence.editor.end_date" = "End Date";
+"recurrence.editor.remove" = "Remove Repeat";
+"recurrence.editor.cancel" = "Cancel";
+"recurrence.editor.done" = "Done";
+"recurrence.daily" = "Daily";
+"recurrence.weekly" = "Weekly";
+"recurrence.monthly" = "Monthly";
+"recurrence.yearly" = "Yearly";
+
 // MARK: - Saving
 "saving.loading" = "Saving to Calendar...";
 
@@ -54,6 +73,7 @@
 "saved.recurring" = "Recurring event";
 "saved.button.open_calendar" = "Open Calendar";
 "saved.button.add_another" = "Add Another";
+"saved.button.undo" = "Undo";
 
 // MARK: - Error
 "error.button.retry" = "Edit & Retry";
@@ -69,10 +89,12 @@
 "error.generic" = "Couldn't understand that. Try adding a time or date.";
 "error.date_format" = "Could not understand the date format. Try being more specific.";
 "error.permission_denied" = "Calendar access denied. Please enable in Settings.";
+"error.input_too_long" = "Text is too long.";
 
 // MARK: - Error Suggestions
 "suggestion.simpler" = "Try a simpler phrase";
 "suggestion.break_events" = "Break into separate events";
+"suggestion.shorter_text" = "Try shorter text (max 500 characters)";
 "suggestion.clear_format" = "Use clear date/time format";
 "suggestion.add_date" = "Add a specific date like 'tomorrow' or 'next Tuesday'";
 "suggestion.add_time" = "Add a specific time like '2pm'";
@@ -94,3 +116,27 @@
 "settings.haptic_feedback" = "Haptic Feedback";
 "settings.version" = "Version";
 "preview.duration_indicator" = "(default)";
+
+// MARK: - Timezone Settings
+"settings.section.timezone" = "Timezone";
+"settings.timezone" = "Event Timezone";
+"settings.timezone.system" = "System Default";
+"settings.timezone.footer" = "Override timezone for events when traveling";
+
+// MARK: - Templates
+"templates.button" = "Templates";
+"templates.title" = "Input Templates";
+"templates.close" = "Close";
+"templates.add" = "Create Template";
+"templates.empty.title" = "No Templates";
+"templates.empty.description" = "Save frequently used phrases as templates for quick input";
+"templates.new.title" = "New Template";
+"templates.new.name" = "Template name";
+"templates.new.text" = "e.g., Lunch with [name] tomorrow 1pm";
+"templates.new.section.name" = "Name";
+"templates.new.section.text" = "Input Text";
+"templates.new.name.footer" = "A short name to identify this template";
+"templates.new.text.footer" = "Natural language text. Use [brackets] for placeholders you'll fill in.";
+"templates.new.cancel" = "Cancel";
+"templates.new.save" = "Save";
+"templates.load_samples" = "Load Sample Templates";

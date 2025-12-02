@@ -41,6 +41,9 @@ final class CalendarService {
 
     private let eventStore = EKEventStore()
 
+    /// The identifier of the last saved event (for undo support)
+    private(set) var lastSavedEventId: String?
+
     /// Request write-only calendar access if needed (iOS 17+)
     func requestWriteOnlyIfNeeded() async throws {
         let status = EKEventStore.authorizationStatus(for: .event)
@@ -131,10 +134,28 @@ final class CalendarService {
 
         do {
             try eventStore.save(ekEvent, span: .thisEvent)
+            lastSavedEventId = ekEvent.eventIdentifier
             logger.info("add: successfully saved event with ID=\(ekEvent.eventIdentifier ?? "unknown")")
         } catch {
             logger.error("add: failed to save event: \(error.localizedDescription)")
             throw CalendarError.saveFailed(error)
+        }
+    }
+
+    /// Delete an event by its identifier
+    func deleteEvent(identifier: String) throws {
+        guard let event = eventStore.event(withIdentifier: identifier) else {
+            logger.warning("deleteEvent: event not found with id=\(identifier)")
+            throw CalendarError.eventNotFound
+        }
+
+        do {
+            try eventStore.remove(event, span: .thisEvent)
+            logger.info("deleteEvent: successfully removed event \(identifier)")
+            lastSavedEventId = nil
+        } catch {
+            logger.error("deleteEvent: failed to remove event: \(error.localizedDescription)")
+            throw CalendarError.deleteFailed(error)
         }
     }
 }
@@ -145,6 +166,8 @@ enum CalendarError: LocalizedError {
     case permissionDenied
     case unknownAuthStatus
     case saveFailed(Error)
+    case eventNotFound
+    case deleteFailed(Error)
 
     var errorDescription: String? {
         switch self {
@@ -154,6 +177,10 @@ enum CalendarError: LocalizedError {
             return "Unable to determine calendar access status."
         case .saveFailed(let error):
             return "Failed to save event: \(error.localizedDescription)"
+        case .eventNotFound:
+            return "Event not found."
+        case .deleteFailed(let error):
+            return "Failed to delete event: \(error.localizedDescription)"
         }
     }
 }

@@ -69,10 +69,12 @@
 "error.generic" = "Konnte nicht verstanden werden. Versuchen Sie, eine Uhrzeit oder ein Datum hinzuzufügen.";
 "error.date_format" = "Datumsformat nicht erkannt. Versuchen Sie, genauer zu sein.";
 "error.permission_denied" = "Kalenderzugriff verweigert. Bitte in den Einstellungen aktivieren.";
+"error.input_too_long" = "Der Text ist zu lang.";
 
 // MARK: - Error Suggestions
 "suggestion.simpler" = "Versuchen Sie einen einfacheren Ausdruck";
 "suggestion.break_events" = "In separate Ereignisse aufteilen";
+"suggestion.shorter_text" = "Versuchen Sie kürzeren Text (max. 500 Zeichen)";
 "suggestion.clear_format" = "Klares Datum/Uhrzeit-Format verwenden";
 "suggestion.add_date" = "Datum hinzufügen wie 'morgen' oder 'nächsten Dienstag'";
 "suggestion.add_time" = "Uhrzeit hinzufügen wie '14 Uhr'";

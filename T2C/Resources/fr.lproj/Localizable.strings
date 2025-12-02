@@ -69,10 +69,12 @@
 "error.generic" = "Impossible de comprendre. Essayez d'ajouter une heure ou une date.";
 "error.date_format" = "Format de date non reconnu. Essayez d'être plus précis.";
 "error.permission_denied" = "Accès au calendrier refusé. Veuillez l'activer dans les Réglages.";
+"error.input_too_long" = "Le texte est trop long.";
 
 // MARK: - Error Suggestions
 "suggestion.simpler" = "Essayez une phrase plus simple";
 "suggestion.break_events" = "Divisez en événements séparés";
+"suggestion.shorter_text" = "Essayez un texte plus court (max 500 caractères)";
 "suggestion.clear_format" = "Utilisez un format de date/heure clair";
 "suggestion.add_date" = "Ajoutez une date comme 'demain' ou 'mardi prochain'";
 "suggestion.add_time" = "Ajoutez une heure comme '14h'";

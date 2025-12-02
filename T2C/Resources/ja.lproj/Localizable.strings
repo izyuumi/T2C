@@ -69,10 +69,12 @@
 "error.generic" = "理解できませんでした。日時を追加してみてください。";
 "error.date_format" = "日付形式を理解できませんでした。より具体的に入力してください。";
 "error.permission_denied" = "カレンダーへのアクセスが拒否されました。設定で有効にしてください。";
+"error.input_too_long" = "テキストが長すぎます。";
 
 // MARK: - Error Suggestions
 "suggestion.simpler" = "シンプルな表現を試す";
 "suggestion.break_events" = "複数のイベントに分ける";
+"suggestion.shorter_text" = "短いテキストを試してください（最大500文字）";
 "suggestion.clear_format" = "明確な日時形式を使用する";
 "suggestion.add_date" = "「明日」や「来週火曜」のような日付を追加";
 "suggestion.add_time" = "「14時」のような時刻を追加";
