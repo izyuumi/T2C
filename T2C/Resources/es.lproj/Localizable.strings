@@ -1,0 +1,96 @@
+/*
+  Localizable.strings (Spanish)
+  T2C
+*/
+
+// MARK: - Main View
+"app.title" = "Texto a Calendario";
+"app.hint" = "Escribe algo como:\n\"Almuerzo con Alex el martes a las 13h en Shibuya\"";
+
+// MARK: - Quick Chips
+"chip.today_6pm" = "Hoy 18h";
+"chip.tomorrow_9am" = "Mañana 9h";
+"chip.next_monday_2pm" = "Próximo lunes 14h";
+
+// MARK: - Input
+"input.placeholder" = "Ej: Almuerzo con Alex mañana a las 14h";
+
+// MARK: - Parsing
+"parsing.loading" = "Analizando...";
+
+// MARK: - Preview
+"preview.title" = "Vista previa";
+"preview.duration_default" = "1 hora (por defecto)";
+"preview.field.title" = "Título";
+"preview.field.title.placeholder" = "Nombre del evento";
+"preview.field.start" = "Inicio";
+"preview.field.end" = "Fin";
+"preview.field.location" = "Ubicación";
+"preview.field.location.placeholder" = "Añadir ubicación (opcional)";
+"preview.field.notes" = "Notas";
+"preview.field.notes.placeholder" = "Añadir notas (opcional)";
+"preview.field.repeats" = "Repetición";
+"preview.field.calendar" = "Calendario";
+"preview.warning.past_time" = "Esta hora ya pasó";
+"preview.button.add" = "Añadir al Calendario";
+
+// MARK: - Recurrence
+"recurrence.every" = "Cada";
+"recurrence.day" = "día";
+"recurrence.days" = "días";
+"recurrence.week" = "semana";
+"recurrence.weeks" = "semanas";
+"recurrence.month" = "mes";
+"recurrence.months" = "meses";
+"recurrence.year" = "año";
+"recurrence.years" = "años";
+"recurrence.until" = "hasta";
+
+// MARK: - Saving
+"saving.loading" = "Guardando en el Calendario...";
+
+// MARK: - Saved
+"saved.title" = "Añadido al Calendario";
+"saved.recurring" = "Evento recurrente";
+"saved.button.open_calendar" = "Abrir Calendario";
+"saved.button.add_another" = "Añadir otro";
+
+// MARK: - Error
+"error.button.retry" = "Editar y reintentar";
+"error.suggestions.header" = "Sugerencias:";
+"error.partial.title" = "Título:";
+"error.partial.date" = "Fecha:";
+"error.partial.time" = "Hora:";
+"error.partial.found" = "Encontrado";
+"error.partial.missing" = "No encontrado";
+
+// MARK: - Error Messages
+"error.timeout" = "El procesamiento tardó demasiado.";
+"error.generic" = "No se pudo entender. Intenta añadir una hora o fecha.";
+"error.date_format" = "No se pudo entender el formato de fecha. Intenta ser más específico.";
+"error.permission_denied" = "Acceso al calendario denegado. Por favor, habilítalo en Ajustes.";
+
+// MARK: - Error Suggestions
+"suggestion.simpler" = "Prueba una frase más simple";
+"suggestion.break_events" = "Divide en eventos separados";
+"suggestion.clear_format" = "Usa un formato de fecha/hora claro";
+"suggestion.add_date" = "Añade una fecha como 'mañana' o 'próximo martes'";
+"suggestion.add_time" = "Añade una hora como '14h'";
+"suggestion.time_format" = "Usa formato como '14h' o '2pm'";
+"suggestion.date_format" = "Prueba '5 dic' o '5/12'";
+"suggestion.include_date" = "Incluye una fecha como 'mañana'";
+
+// MARK: - Settings
+"settings.title" = "Ajustes";
+"settings.done" = "Listo";
+"settings.section.defaults" = "Valores por defecto";
+"settings.section.feedback" = "Comentarios";
+"settings.section.about" = "Acerca de";
+"settings.default_duration" = "Duración predeterminada";
+"settings.default_duration.footer" = "Se aplica cuando no se especifica hora de fin";
+"settings.duration.30min" = "30 minutos";
+"settings.duration.1hour" = "1 hora";
+"settings.duration.2hours" = "2 horas";
+"settings.haptic_feedback" = "Retroalimentación háptica";
+"settings.version" = "Versión";
+"preview.duration_indicator" = "(por defecto)";

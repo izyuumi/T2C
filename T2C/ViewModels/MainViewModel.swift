@@ -9,11 +9,28 @@ import Foundation
 import SwiftUI
 import OSLog
 import Combine
+import EventKit
 
 private let logger = Logger(subsystem: "com.t2c.app", category: "MainViewModel")
 
 @MainActor
 final class MainViewModel: ObservableObject {
+
+    // MARK: - Error Handling
+
+    /// Partial parse result for error recovery
+    struct PartialParseResult: Equatable {
+        var title: String?
+        var foundDate: Bool
+        var foundTime: Bool
+    }
+
+    /// Structured error with suggestions
+    struct ParseError: Equatable {
+        let message: String
+        let suggestions: [String]
+        let partialResult: PartialParseResult?
+    }
 
     // MARK: - UI State
 
@@ -23,13 +40,16 @@ final class MainViewModel: ObservableObject {
         case preview(CalendarEvent)
         case saving
         case saved(CalendarEvent)
-        case error(String)
+        case error(ParseError)
     }
 
     // MARK: - Published Properties
 
     @Published var text: String = ""
     @Published var state: UIState = .idle
+    @Published var availableCalendars: [EKCalendar] = []
+    @Published var selectedCalendarId: String?
+    @Published var editableEvent: CalendarEvent?
 
     // MARK: - Dependencies
 
@@ -60,8 +80,20 @@ final class MainViewModel: ObservableObject {
                 try await self.parser.parse(trimmedText, tz: .current)
             }
 
-            // Apply default duration if end is nil
-            event.end = event.end ?? event.start.addingTimeInterval(DateUtil.defaultDuration)
+            // Apply default duration from settings if end is nil
+            if event.end == nil {
+                let defaultMinutes = UserDefaults.standard.integer(forKey: "defaultDuration")
+                let duration = TimeInterval((defaultMinutes > 0 ? defaultMinutes : 60) * 60)
+                event.end = event.start.addingTimeInterval(duration)
+                event.wasEndTimeInferred = true
+            }
+
+            // Load available calendars and set default
+            availableCalendars = calendar.getCalendars()
+            selectedCalendarId = calendar.getDefaultCalendar()?.calendarIdentifier
+
+            // Set editable event for preview editing
+            editableEvent = event
 
             logger.info("parse: success, transitioning to preview state")
             state = .preview(event)
@@ -69,22 +101,24 @@ final class MainViewModel: ObservableObject {
         } catch {
             logger.error("parse: failed with error=\(error.localizedDescription)")
 
-            let errorMessage = (error as? LocalizedError)?.errorDescription
-                ?? "Couldn't understand that. Try adding a time or date."
-
-            state = .error(errorMessage)
+            // Create structured error with suggestions
+            let parseError = createParseError(from: error, text: trimmedText)
+            state = .error(parseError)
         }
     }
 
     /// Save the previewed event to the calendar
     func save() async {
-        guard case let .preview(event) = state else {
-            logger.warning("save: called but not in preview state")
+        guard var event = editableEvent else {
+            logger.warning("save: called but no editable event available")
             return
         }
 
         logger.info("save: starting for event title='\(event.title)'")
         state = .saving
+
+        // Set selected calendar on the event
+        event.selectedCalendarId = selectedCalendarId
 
         do {
             try await withTimeout(saveTimeout) {
@@ -104,7 +138,13 @@ final class MainViewModel: ObservableObject {
             let errorMessage = (error as? LocalizedError)?.errorDescription
                 ?? "Couldn't save to Calendar."
 
-            state = .error(errorMessage)
+            let parseError = ParseError(
+                message: errorMessage,
+                suggestions: ["Check calendar permissions in Settings"],
+                partialResult: nil
+            )
+
+            state = .error(parseError)
         }
     }
 
@@ -116,6 +156,112 @@ final class MainViewModel: ObservableObject {
     }
 
     // MARK: - Private Helpers
+
+    /// Creates a structured ParseError with helpful suggestions based on the error type
+    private func createParseError(from error: Error, text: String) -> ParseError {
+        var message = String(localized: "error.generic")
+        var suggestions: [String] = []
+        var partialResult: PartialParseResult?
+
+        // Analyze error type and provide specific suggestions
+        if error is TimeoutError {
+            message = String(localized: "error.timeout")
+            suggestions = [
+                String(localized: "suggestion.simpler"),
+                String(localized: "suggestion.break_events"),
+                String(localized: "suggestion.clear_format")
+            ]
+            // Extract partial info from text
+            partialResult = PartialParseResult(
+                title: extractPotentialTitle(from: text),
+                foundDate: containsDateKeywords(text),
+                foundTime: containsTimePattern(text)
+            )
+
+        } else if let parsingError = error as? ParsingError {
+            message = parsingError.errorDescription ?? String(localized: "error.date_format")
+            suggestions = [
+                String(localized: "suggestion.add_date"),
+                String(localized: "suggestion.time_format"),
+                String(localized: "suggestion.date_format")
+            ]
+            partialResult = PartialParseResult(
+                title: extractPotentialTitle(from: text),
+                foundDate: containsDateKeywords(text),
+                foundTime: containsTimePattern(text)
+            )
+
+        } else {
+            // Generic error
+            message = (error as? LocalizedError)?.errorDescription
+                ?? String(localized: "error.generic")
+            suggestions = [
+                String(localized: "suggestion.add_time"),
+                String(localized: "suggestion.include_date"),
+                String(localized: "suggestion.simpler")
+            ]
+            partialResult = PartialParseResult(
+                title: extractPotentialTitle(from: text),
+                foundDate: false,
+                foundTime: false
+            )
+        }
+
+        logger.info("createParseError: created error with \(suggestions.count) suggestions")
+
+        return ParseError(
+            message: message,
+            suggestions: suggestions,
+            partialResult: partialResult
+        )
+    }
+
+    /// Extract potential title from text (first few words)
+    private func extractPotentialTitle(from text: String) -> String? {
+        let words = text.split(separator: " ").prefix(5)
+        guard !words.isEmpty else { return nil }
+        return words.joined(separator: " ")
+    }
+
+    /// Check if text contains common date keywords (multi-language)
+    private func containsDateKeywords(_ text: String) -> Bool {
+        // English
+        let englishKeywords = ["tomorrow", "today", "next", "this", "monday", "tuesday", "wednesday",
+                               "thursday", "friday", "saturday", "sunday", "week", "month"]
+        // Japanese
+        let japaneseKeywords = ["明日", "今日", "来週", "今週", "月曜", "火曜", "水曜", "木曜", "金曜", "土曜", "日曜"]
+        // Chinese
+        let chineseKeywords = ["明天", "今天", "下周", "这周", "星期", "周一", "周二", "周三", "周四", "周五", "周六", "周日"]
+        // Korean
+        let koreanKeywords = ["내일", "오늘", "다음 주", "이번 주", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일"]
+        // Spanish
+        let spanishKeywords = ["mañana", "hoy", "próximo", "próxima", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"]
+        // French
+        let frenchKeywords = ["demain", "aujourd'hui", "prochain", "prochaine", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"]
+        // German
+        let germanKeywords = ["morgen", "heute", "nächste", "nächsten", "montag", "dienstag", "mittwoch", "donnerstag", "freitag", "samstag", "sonntag"]
+
+        let allKeywords = englishKeywords + japaneseKeywords + chineseKeywords + koreanKeywords + spanishKeywords + frenchKeywords + germanKeywords
+        let lowercased = text.lowercased()
+        return allKeywords.contains { lowercased.contains($0.lowercased()) }
+    }
+
+    /// Check if text contains time patterns (multi-language)
+    private func containsTimePattern(_ text: String) -> Bool {
+        // English/general: 2pm, 14:00, 2:30pm
+        let englishPattern = #"\d{1,2}(:\d{2})?\s*(am|pm|AM|PM)?"#
+        // Japanese: 14時, 午後2時, 14時30分
+        let japanesePattern = #"\d{1,2}時|午前|午後"#
+        // Chinese: 14点, 下午2点, 14点30分
+        let chinesePattern = #"\d{1,2}点|上午|下午"#
+        // Korean: 2시, 오후 2시
+        let koreanPattern = #"\d{1,2}시|오전|오후"#
+
+        return text.range(of: englishPattern, options: .regularExpression) != nil ||
+               text.range(of: japanesePattern, options: .regularExpression) != nil ||
+               text.range(of: chinesePattern, options: .regularExpression) != nil ||
+               text.range(of: koreanPattern, options: .regularExpression) != nil
+    }
 
     /// Executes an async operation with a timeout
     private func withTimeout<T>(

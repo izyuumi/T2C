@@ -1,0 +1,96 @@
+/*
+  Localizable.strings (French)
+  T2C
+*/
+
+// MARK: - Main View
+"app.title" = "Texte vers Calendrier";
+"app.hint" = "Écrivez quelque chose comme:\n\"Déjeuner avec Alex mardi prochain à 13h à Shibuya\"";
+
+// MARK: - Quick Chips
+"chip.today_6pm" = "Aujourd'hui 18h";
+"chip.tomorrow_9am" = "Demain 9h";
+"chip.next_monday_2pm" = "Lundi prochain 14h";
+
+// MARK: - Input
+"input.placeholder" = "Ex: Déjeuner avec Alex demain à 14h";
+
+// MARK: - Parsing
+"parsing.loading" = "Analyse en cours...";
+
+// MARK: - Preview
+"preview.title" = "Aperçu";
+"preview.duration_default" = "1 heure (par défaut)";
+"preview.field.title" = "Titre";
+"preview.field.title.placeholder" = "Nom de l'événement";
+"preview.field.start" = "Début";
+"preview.field.end" = "Fin";
+"preview.field.location" = "Lieu";
+"preview.field.location.placeholder" = "Ajouter un lieu (optionnel)";
+"preview.field.notes" = "Notes";
+"preview.field.notes.placeholder" = "Ajouter des notes (optionnel)";
+"preview.field.repeats" = "Répétition";
+"preview.field.calendar" = "Calendrier";
+"preview.warning.past_time" = "Cette heure est passée";
+"preview.button.add" = "Ajouter au Calendrier";
+
+// MARK: - Recurrence
+"recurrence.every" = "Tous les";
+"recurrence.day" = "jour";
+"recurrence.days" = "jours";
+"recurrence.week" = "semaine";
+"recurrence.weeks" = "semaines";
+"recurrence.month" = "mois";
+"recurrence.months" = "mois";
+"recurrence.year" = "an";
+"recurrence.years" = "ans";
+"recurrence.until" = "jusqu'au";
+
+// MARK: - Saving
+"saving.loading" = "Enregistrement dans le Calendrier...";
+
+// MARK: - Saved
+"saved.title" = "Ajouté au Calendrier";
+"saved.recurring" = "Événement récurrent";
+"saved.button.open_calendar" = "Ouvrir le Calendrier";
+"saved.button.add_another" = "Ajouter un autre";
+
+// MARK: - Error
+"error.button.retry" = "Modifier et réessayer";
+"error.suggestions.header" = "Suggestions:";
+"error.partial.title" = "Titre:";
+"error.partial.date" = "Date:";
+"error.partial.time" = "Heure:";
+"error.partial.found" = "Trouvé";
+"error.partial.missing" = "Non trouvé";
+
+// MARK: - Error Messages
+"error.timeout" = "Le traitement a pris trop de temps.";
+"error.generic" = "Impossible de comprendre. Essayez d'ajouter une heure ou une date.";
+"error.date_format" = "Format de date non reconnu. Essayez d'être plus précis.";
+"error.permission_denied" = "Accès au calendrier refusé. Veuillez l'activer dans les Réglages.";
+
+// MARK: - Error Suggestions
+"suggestion.simpler" = "Essayez une phrase plus simple";
+"suggestion.break_events" = "Divisez en événements séparés";
+"suggestion.clear_format" = "Utilisez un format de date/heure clair";
+"suggestion.add_date" = "Ajoutez une date comme 'demain' ou 'mardi prochain'";
+"suggestion.add_time" = "Ajoutez une heure comme '14h'";
+"suggestion.time_format" = "Utilisez le format '14h' ou '14:00'";
+"suggestion.date_format" = "Essayez '5 déc' ou '5/12'";
+"suggestion.include_date" = "Incluez une date comme 'demain'";
+
+// MARK: - Settings
+"settings.title" = "Réglages";
+"settings.done" = "Terminé";
+"settings.section.defaults" = "Paramètres par défaut";
+"settings.section.feedback" = "Retour";
+"settings.section.about" = "À propos";
+"settings.default_duration" = "Durée par défaut";
+"settings.default_duration.footer" = "Appliquée si aucune heure de fin n'est spécifiée";
+"settings.duration.30min" = "30 minutes";
+"settings.duration.1hour" = "1 heure";
+"settings.duration.2hours" = "2 heures";
+"settings.haptic_feedback" = "Retour haptique";
+"settings.version" = "Version";
+"preview.duration_indicator" = "(par défaut)";

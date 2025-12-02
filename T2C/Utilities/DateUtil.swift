@@ -17,19 +17,14 @@ enum DateUtil {
 
     /// Parse ISO-8601 string to Date with current timezone
     static func parseISO8601(_ isoString: String, in timezone: TimeZone = .current) -> Date? {
-        logger.debug("parseISO8601: attempting to parse input=\(isoString) timezone=\(timezone.identifier)")
-
         // Try with fractional seconds first
         let formatterWithFractional = ISO8601DateFormatter()
         formatterWithFractional.timeZone = timezone
         formatterWithFractional.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
 
         if let result = formatterWithFractional.date(from: isoString) {
-            logger.debug("parseISO8601: ✓ parsed with fractional seconds - result=\(result)")
             return result
         }
-
-        logger.debug("parseISO8601: ✗ fractional seconds failed, trying without fractional seconds")
 
         // Fallback: try without fractional seconds
         let formatterWithoutFractional = ISO8601DateFormatter()
@@ -37,7 +32,6 @@ enum DateUtil {
         formatterWithoutFractional.formatOptions = [.withInternetDateTime]
 
         if let result = formatterWithoutFractional.date(from: isoString) {
-            logger.debug("parseISO8601: ✓ parsed without fractional seconds - result=\(result)")
             return result
         }
 
@@ -47,13 +41,7 @@ enum DateUtil {
 
     /// Apply default duration if end date is nil
     static func applyDefaultDuration(start: Date, end: Date?) -> Date {
-        let finalEnd = end ?? start.addingTimeInterval(defaultDuration)
-
-        if end == nil {
-            logger.debug("applyDefaultDuration: Applied \(defaultDuration)s to start=\(start) -> end=\(finalEnd)")
-        }
-
-        return finalEnd
+        return end ?? start.addingTimeInterval(defaultDuration)
     }
 
     /// Format Date to ISO-8601 string
@@ -62,10 +50,7 @@ enum DateUtil {
         formatter.timeZone = timezone
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
 
-        let result = formatter.string(from: date)
-        logger.debug("toISO8601: date=\(date) timezone=\(timezone.identifier) result=\(result)")
-
-        return result
+        return formatter.string(from: date)
     }
 
     /// Check if a date is in the past

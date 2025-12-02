@@ -11,6 +11,17 @@ import OSLog
 
 // MARK: - Calendar Event Model
 
+/// Recurrence rule for repeating calendar events
+struct RecurrenceRule: Codable, Equatable {
+    enum Frequency: String, Codable, CaseIterable {
+        case daily, weekly, monthly, yearly
+    }
+
+    var frequency: Frequency
+    var interval: Int = 1  // every 1 week, every 2 days, etc.
+    var endDate: Date?     // optional end date for recurrence
+}
+
 /// Represents a calendar event with required and optional fields
 struct CalendarEvent: Codable, Equatable {
     var title: String
@@ -18,6 +29,9 @@ struct CalendarEvent: Codable, Equatable {
     var end: Date?
     var location: String?
     var notes: String?
+    var recurrence: RecurrenceRule?
+    var selectedCalendarId: String?
+    var wasEndTimeInferred: Bool = false  // Track if we applied default duration
 }
 
 private let logger = Logger(subsystem: "com.t2c.app", category: "CalendarService")
@@ -29,14 +43,11 @@ final class CalendarService {
 
     /// Request write-only calendar access if needed (iOS 17+)
     func requestWriteOnlyIfNeeded() async throws {
-        logger.debug("requestWriteOnlyIfNeeded: checking authorization status")
-
         let status = EKEventStore.authorizationStatus(for: .event)
         logger.info("requestWriteOnlyIfNeeded: current status=\(String(describing: status))")
 
         switch status {
         case .notDetermined:
-            logger.debug("requestWriteOnlyIfNeeded: requesting write-only access")
             let granted = try await eventStore.requestWriteOnlyAccessToEvents()
             logger.info("requestWriteOnlyIfNeeded: access granted=\(granted)")
 
@@ -49,7 +60,7 @@ final class CalendarService {
             throw CalendarError.permissionDenied
 
         case .fullAccess, .writeOnly:
-            logger.debug("requestWriteOnlyIfNeeded: already authorized")
+            break
 
         @unknown default:
             logger.warning("requestWriteOnlyIfNeeded: unknown authorization status")
@@ -57,9 +68,19 @@ final class CalendarService {
         }
     }
 
-    /// Add a calendar event to the default calendar
+    /// Get all available calendars for events
+    func getCalendars() -> [EKCalendar] {
+        eventStore.calendars(for: .event)
+    }
+
+    /// Get the default calendar
+    func getDefaultCalendar() -> EKCalendar? {
+        eventStore.defaultCalendarForNewEvents
+    }
+
+    /// Add a calendar event to the specified or default calendar
     func add(_ event: CalendarEvent) throws {
-        logger.info("add: creating event title='\(event.title)' start=\(event.start)")
+        logger.info("add: creating event title='\(event.title)' start=\(event.start), recurrence=\(String(describing: event.recurrence)), selectedCalendarId=\(String(describing: event.selectedCalendarId))")
 
         let ekEvent = EKEvent(eventStore: eventStore)
         ekEvent.title = event.title
@@ -67,9 +88,46 @@ final class CalendarService {
         ekEvent.endDate = event.end ?? DateUtil.applyDefaultDuration(start: event.start, end: nil)
         ekEvent.location = event.location
         ekEvent.notes = event.notes
-        ekEvent.calendar = eventStore.defaultCalendarForNewEvents
 
-        logger.debug("add: saving to calendar=\(String(describing: ekEvent.calendar?.title))")
+        // Use selected calendar if provided, otherwise use default
+        if let calendarId = event.selectedCalendarId,
+           let calendar = eventStore.calendar(withIdentifier: calendarId) {
+            ekEvent.calendar = calendar
+            logger.info("add: using selected calendar='\(calendar.title)'")
+        } else {
+            ekEvent.calendar = eventStore.defaultCalendarForNewEvents
+            logger.info("add: using default calendar='\(ekEvent.calendar?.title ?? "unknown")'")
+        }
+
+        // Apply recurrence rule if provided
+        if let recurrence = event.recurrence {
+            let frequency: EKRecurrenceFrequency
+            switch recurrence.frequency {
+            case .daily:
+                frequency = .daily
+            case .weekly:
+                frequency = .weekly
+            case .monthly:
+                frequency = .monthly
+            case .yearly:
+                frequency = .yearly
+            }
+
+            let recurrenceEnd: EKRecurrenceEnd?
+            if let endDate = recurrence.endDate {
+                recurrenceEnd = EKRecurrenceEnd(end: endDate)
+            } else {
+                recurrenceEnd = nil
+            }
+
+            let rule = EKRecurrenceRule(
+                recurrenceWith: frequency,
+                interval: recurrence.interval,
+                end: recurrenceEnd
+            )
+            ekEvent.recurrenceRules = [rule]
+            logger.info("add: applied recurrence rule frequency=\(recurrence.frequency.rawValue), interval=\(recurrence.interval), hasEndDate=\(recurrence.endDate != nil)")
+        }
 
         do {
             try eventStore.save(ekEvent, span: .thisEvent)

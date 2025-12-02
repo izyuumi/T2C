@@ -1,0 +1,96 @@
+/*
+  Localizable.strings (Japanese)
+  T2C
+*/
+
+// MARK: - Main View
+"app.title" = "テキストからカレンダーへ";
+"app.hint" = "例えば:\n「明日14時 渋谷でAlexとランチ」";
+
+// MARK: - Quick Chips
+"chip.today_6pm" = "今日 18時";
+"chip.tomorrow_9am" = "明日 9時";
+"chip.next_monday_2pm" = "来週月曜 14時";
+
+// MARK: - Input
+"input.placeholder" = "例: 明日14時 Alexとランチ";
+
+// MARK: - Parsing
+"parsing.loading" = "解析中...";
+
+// MARK: - Preview
+"preview.title" = "プレビュー";
+"preview.duration_default" = "1時間（デフォルト）";
+"preview.field.title" = "タイトル";
+"preview.field.title.placeholder" = "イベント名";
+"preview.field.start" = "開始";
+"preview.field.end" = "終了";
+"preview.field.location" = "場所";
+"preview.field.location.placeholder" = "場所を追加（任意）";
+"preview.field.notes" = "メモ";
+"preview.field.notes.placeholder" = "メモを追加（任意）";
+"preview.field.repeats" = "繰り返し";
+"preview.field.calendar" = "カレンダー";
+"preview.warning.past_time" = "この時刻は過去です";
+"preview.button.add" = "カレンダーに追加";
+
+// MARK: - Recurrence
+"recurrence.every" = "毎";
+"recurrence.day" = "日";
+"recurrence.days" = "日";
+"recurrence.week" = "週";
+"recurrence.weeks" = "週";
+"recurrence.month" = "月";
+"recurrence.months" = "ヶ月";
+"recurrence.year" = "年";
+"recurrence.years" = "年";
+"recurrence.until" = "まで";
+
+// MARK: - Saving
+"saving.loading" = "カレンダーに保存中...";
+
+// MARK: - Saved
+"saved.title" = "カレンダーに追加しました";
+"saved.recurring" = "繰り返しイベント";
+"saved.button.open_calendar" = "カレンダーを開く";
+"saved.button.add_another" = "別のイベントを追加";
+
+// MARK: - Error
+"error.button.retry" = "編集してやり直す";
+"error.suggestions.header" = "ヒント:";
+"error.partial.title" = "タイトル:";
+"error.partial.date" = "日付:";
+"error.partial.time" = "時刻:";
+"error.partial.found" = "検出";
+"error.partial.missing" = "未検出";
+
+// MARK: - Error Messages
+"error.timeout" = "処理に時間がかかりすぎました。";
+"error.generic" = "理解できませんでした。日時を追加してみてください。";
+"error.date_format" = "日付形式を理解できませんでした。より具体的に入力してください。";
+"error.permission_denied" = "カレンダーへのアクセスが拒否されました。設定で有効にしてください。";
+
+// MARK: - Error Suggestions
+"suggestion.simpler" = "シンプルな表現を試す";
+"suggestion.break_events" = "複数のイベントに分ける";
+"suggestion.clear_format" = "明確な日時形式を使用する";
+"suggestion.add_date" = "「明日」や「来週火曜」のような日付を追加";
+"suggestion.add_time" = "「14時」のような時刻を追加";
+"suggestion.time_format" = "「14時」や「午後2時」形式を使用";
+"suggestion.date_format" = "「12月5日」や「12/5」を試す";
+"suggestion.include_date" = "「明日」のような日付を含める";
+
+// MARK: - Settings
+"settings.title" = "設定";
+"settings.done" = "完了";
+"settings.section.defaults" = "イベントのデフォルト";
+"settings.section.feedback" = "フィードバック";
+"settings.section.about" = "このアプリについて";
+"settings.default_duration" = "デフォルトの長さ";
+"settings.default_duration.footer" = "終了時刻が指定されていない場合に適用されます";
+"settings.duration.30min" = "30分";
+"settings.duration.1hour" = "1時間";
+"settings.duration.2hours" = "2時間";
+"settings.haptic_feedback" = "触覚フィードバック";
+"settings.version" = "バージョン";
+"preview.duration_indicator" = "（デフォルト）";

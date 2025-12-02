@@ -1,0 +1,96 @@
+/*
+  Localizable.strings (Simplified Chinese)
+  T2C
+*/
+
+// MARK: - Main View
+"app.title" = "文字转日历";
+"app.hint" = "例如:\n「明天下午2点 和Alex在涩谷吃午饭」";
+
+// MARK: - Quick Chips
+"chip.today_6pm" = "今天 18点";
+"chip.tomorrow_9am" = "明天 9点";
+"chip.next_monday_2pm" = "下周一 14点";
+
+// MARK: - Input
+"input.placeholder" = "例: 明天14点 和Alex吃午饭";
+
+// MARK: - Parsing
+"parsing.loading" = "解析中...";
+
+// MARK: - Preview
+"preview.title" = "预览";
+"preview.duration_default" = "1小时（默认）";
+"preview.field.title" = "标题";
+"preview.field.title.placeholder" = "活动名称";
+"preview.field.start" = "开始";
+"preview.field.end" = "结束";
+"preview.field.location" = "地点";
+"preview.field.location.placeholder" = "添加地点（可选）";
+"preview.field.notes" = "备注";
+"preview.field.notes.placeholder" = "添加备注（可选）";
+"preview.field.repeats" = "重复";
+"preview.field.calendar" = "日历";
+"preview.warning.past_time" = "此时间已过";
+"preview.button.add" = "添加到日历";
+
+// MARK: - Recurrence
+"recurrence.every" = "每";
+"recurrence.day" = "天";
+"recurrence.days" = "天";
+"recurrence.week" = "周";
+"recurrence.weeks" = "周";
+"recurrence.month" = "月";
+"recurrence.months" = "个月";
+"recurrence.year" = "年";
+"recurrence.years" = "年";
+"recurrence.until" = "直到";
+
+// MARK: - Saving
+"saving.loading" = "正在保存到日历...";
+
+// MARK: - Saved
+"saved.title" = "已添加到日历";
+"saved.recurring" = "重复活动";
+"saved.button.open_calendar" = "打开日历";
+"saved.button.add_another" = "添加另一个";
+
+// MARK: - Error
+"error.button.retry" = "编辑并重试";
+"error.suggestions.header" = "建议:";
+"error.partial.title" = "标题:";
+"error.partial.date" = "日期:";
+"error.partial.time" = "时间:";
+"error.partial.found" = "已识别";
+"error.partial.missing" = "未识别";
+
+// MARK: - Error Messages
+"error.timeout" = "处理时间过长。";
+"error.generic" = "无法理解。请尝试添加时间或日期。";
+"error.date_format" = "无法理解日期格式。请更具体地描述。";
+"error.permission_denied" = "日历访问被拒绝。请在设置中启用。";
+
+// MARK: - Error Suggestions
+"suggestion.simpler" = "尝试更简单的表达";
+"suggestion.break_events" = "拆分为多个活动";
+"suggestion.clear_format" = "使用清晰的日期/时间格式";
+"suggestion.add_date" = "添加具体日期如「明天」或「下周二」";
+"suggestion.add_time" = "添加具体时间如「下午2点」";
+"suggestion.time_format" = "使用「14点」或「下午2点」格式";
+"suggestion.date_format" = "尝试「12月5日」或「12/5」";
+"suggestion.include_date" = "包含日期如「明天」";
+
+// MARK: - Settings
+"settings.title" = "设置";
+"settings.done" = "完成";
+"settings.section.defaults" = "活动默认设置";
+"settings.section.feedback" = "反馈";
+"settings.section.about" = "关于";
+"settings.default_duration" = "默认时长";
+"settings.default_duration.footer" = "未指定结束时间时自动应用";
+"settings.duration.30min" = "30分钟";
+"settings.duration.1hour" = "1小时";
+"settings.duration.2hours" = "2小时";
+"settings.haptic_feedback" = "触觉反馈";
+"settings.version" = "版本";
+"preview.duration_indicator" = "（默认）";

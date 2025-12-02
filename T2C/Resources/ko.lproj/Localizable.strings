@@ -1,0 +1,96 @@
+/*
+  Localizable.strings (Korean)
+  T2C
+*/
+
+// MARK: - Main View
+"app.title" = "텍스트를 캘린더로";
+"app.hint" = "예시:\n「내일 오후 2시 시부야에서 Alex와 점심」";
+
+// MARK: - Quick Chips
+"chip.today_6pm" = "오늘 오후 6시";
+"chip.tomorrow_9am" = "내일 오전 9시";
+"chip.next_monday_2pm" = "다음 주 월요일 오후 2시";
+
+// MARK: - Input
+"input.placeholder" = "예: 내일 오후 2시 Alex와 점심";
+
+// MARK: - Parsing
+"parsing.loading" = "분석 중...";
+
+// MARK: - Preview
+"preview.title" = "미리보기";
+"preview.duration_default" = "1시간 (기본값)";
+"preview.field.title" = "제목";
+"preview.field.title.placeholder" = "일정 제목";
+"preview.field.start" = "시작";
+"preview.field.end" = "종료";
+"preview.field.location" = "위치";
+"preview.field.location.placeholder" = "위치 추가 (선택)";
+"preview.field.notes" = "메모";
+"preview.field.notes.placeholder" = "메모 추가 (선택)";
+"preview.field.repeats" = "반복";
+"preview.field.calendar" = "캘린더";
+"preview.warning.past_time" = "이 시간은 이미 지났습니다";
+"preview.button.add" = "캘린더에 추가";
+
+// MARK: - Recurrence
+"recurrence.every" = "매";
+"recurrence.day" = "일";
+"recurrence.days" = "일";
+"recurrence.week" = "주";
+"recurrence.weeks" = "주";
+"recurrence.month" = "월";
+"recurrence.months" = "개월";
+"recurrence.year" = "년";
+"recurrence.years" = "년";
+"recurrence.until" = "까지";
+
+// MARK: - Saving
+"saving.loading" = "캘린더에 저장 중...";
+
+// MARK: - Saved
+"saved.title" = "캘린더에 추가됨";
+"saved.recurring" = "반복 일정";
+"saved.button.open_calendar" = "캘린더 열기";
+"saved.button.add_another" = "다른 일정 추가";
+
+// MARK: - Error
+"error.button.retry" = "수정 후 다시 시도";
+"error.suggestions.header" = "힌트:";
+"error.partial.title" = "제목:";
+"error.partial.date" = "날짜:";
+"error.partial.time" = "시간:";
+"error.partial.found" = "인식됨";
+"error.partial.missing" = "미인식";
+
+// MARK: - Error Messages
+"error.timeout" = "처리 시간이 너무 오래 걸렸습니다.";
+"error.generic" = "이해할 수 없습니다. 시간이나 날짜를 추가해 보세요.";
+"error.date_format" = "날짜 형식을 이해할 수 없습니다. 더 구체적으로 입력해 주세요.";
+"error.permission_denied" = "캘린더 접근이 거부되었습니다. 설정에서 활성화해 주세요.";
+
+// MARK: - Error Suggestions
+"suggestion.simpler" = "더 간단한 표현 시도";
+"suggestion.break_events" = "여러 일정으로 나누기";
+"suggestion.clear_format" = "명확한 날짜/시간 형식 사용";
+"suggestion.add_date" = "「내일」이나 「다음 주 화요일」 같은 날짜 추가";
+"suggestion.add_time" = "「오후 2시」 같은 시간 추가";
+"suggestion.time_format" = "「14시」나 「오후 2시」 형식 사용";
+"suggestion.date_format" = "「12월 5일」이나 「12/5」 시도";
+"suggestion.include_date" = "「내일」 같은 날짜 포함";
+
+// MARK: - Settings
+"settings.title" = "설정";
+"settings.done" = "완료";
+"settings.section.defaults" = "일정 기본값";
+"settings.section.feedback" = "피드백";
+"settings.section.about" = "정보";
+"settings.default_duration" = "기본 시간";
+"settings.default_duration.footer" = "종료 시간이 지정되지 않으면 적용됩니다";
+"settings.duration.30min" = "30분";
+"settings.duration.1hour" = "1시간";
+"settings.duration.2hours" = "2시간";
+"settings.haptic_feedback" = "햅틱 피드백";
+"settings.version" = "버전";
+"preview.duration_indicator" = "(기본값)";

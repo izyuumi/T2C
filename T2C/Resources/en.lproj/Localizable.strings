@@ -1,0 +1,96 @@
+/*
+  Localizable.strings (English)
+  T2C
+*/
+
+// MARK: - Main View
+"app.title" = "Text to Calendar";
+"app.hint" = "Type something like:\n\"Lunch with Alex next Tue 1pm @Shibuya\"";
+
+// MARK: - Quick Chips
+"chip.today_6pm" = "Today 6pm";
+"chip.tomorrow_9am" = "Tomorrow 9am";
+"chip.next_monday_2pm" = "Next Monday 2pm";
+
+// MARK: - Input
+"input.placeholder" = "e.g., Lunch with Alex next Tue 1pm";
+
+// MARK: - Parsing
+"parsing.loading" = "Parsing...";
+
+// MARK: - Preview
+"preview.title" = "Preview";
+"preview.duration_default" = "1 hour (default)";
+"preview.field.title" = "Title";
+"preview.field.title.placeholder" = "Event title";
+"preview.field.start" = "Start";
+"preview.field.end" = "End";
+"preview.field.location" = "Location";
+"preview.field.location.placeholder" = "Add location (optional)";
+"preview.field.notes" = "Notes";
+"preview.field.notes.placeholder" = "Add notes (optional)";
+"preview.field.repeats" = "Repeats";
+"preview.field.calendar" = "Calendar";
+"preview.warning.past_time" = "This time is in the past";
+"preview.button.add" = "Add to Calendar";
+
+// MARK: - Recurrence
+"recurrence.every" = "Every";
+"recurrence.day" = "day";
+"recurrence.days" = "days";
+"recurrence.week" = "week";
+"recurrence.weeks" = "weeks";
+"recurrence.month" = "month";
+"recurrence.months" = "months";
+"recurrence.year" = "year";
+"recurrence.years" = "years";
+"recurrence.until" = "until";
+
+// MARK: - Saving
+"saving.loading" = "Saving to Calendar...";
+
+// MARK: - Saved
+"saved.title" = "Added to Calendar";
+"saved.recurring" = "Recurring event";
+"saved.button.open_calendar" = "Open Calendar";
+"saved.button.add_another" = "Add Another";
+
+// MARK: - Error
+"error.button.retry" = "Edit & Retry";
+"error.suggestions.header" = "Try:";
+"error.partial.title" = "Title:";
+"error.partial.date" = "Date:";
+"error.partial.time" = "Time:";
+"error.partial.found" = "Found";
+"error.partial.missing" = "Missing";
+
+// MARK: - Error Messages
+"error.timeout" = "Processing took too long.";
+"error.generic" = "Couldn't understand that. Try adding a time or date.";
+"error.date_format" = "Could not understand the date format. Try being more specific.";
+"error.permission_denied" = "Calendar access denied. Please enable in Settings.";
+
+// MARK: - Error Suggestions
+"suggestion.simpler" = "Try a simpler phrase";
+"suggestion.break_events" = "Break into separate events";
+"suggestion.clear_format" = "Use clear date/time format";
+"suggestion.add_date" = "Add a specific date like 'tomorrow' or 'next Tuesday'";
+"suggestion.add_time" = "Add a specific time like '2pm'";
+"suggestion.time_format" = "Use format like '2pm' or '14:00'";
+"suggestion.date_format" = "Try 'Dec 5' or '12/5'";
+"suggestion.include_date" = "Include a date like 'tomorrow'";
+
+// MARK: - Settings
+"settings.title" = "Settings";
+"settings.done" = "Done";
+"settings.section.defaults" = "Event Defaults";
+"settings.section.feedback" = "Feedback";
+"settings.section.about" = "About";
+"settings.default_duration" = "Default Duration";
+"settings.default_duration.footer" = "Applied when no end time is specified";
+"settings.duration.30min" = "30 minutes";
+"settings.duration.1hour" = "1 hour";
+"settings.duration.2hours" = "2 hours";
+"settings.haptic_feedback" = "Haptic Feedback";
+"settings.version" = "Version";
+"preview.duration_indicator" = "(default)";
