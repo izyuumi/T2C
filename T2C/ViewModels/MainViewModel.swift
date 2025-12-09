@@ -302,8 +302,8 @@ final class MainViewModel: ObservableObject {
     private func startUndoTimer() {
         undoTimer?.invalidate()
         canUndo = true
-        undoTimer = Timer.scheduledTimer(withTimeInterval: undoWindow, repeats: false) { [weak self] _ in
-            Task { @MainActor in
+        undoTimer = Timer.scheduledTimer(withTimeInterval: undoWindow, repeats: false) { _ in
+            Task { @MainActor [weak self] in
                 self?.canUndo = false
                 self?.lastSavedEventId = nil
             }
