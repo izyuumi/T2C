@@ -11,6 +11,7 @@ import EventKit
 struct MainView: View {
 
     @StateObject private var viewModel = MainViewModel()
+    @StateObject private var keyboard = KeyboardObserver()
     @FocusState private var isInputFocused: Bool
     @State private var showSettings = false
     @State private var showRecurrenceEditor = false
@@ -35,10 +36,12 @@ struct MainView: View {
             // Dynamic result panel (top)
             resultPanel
                 .frame(maxHeight: .infinity)
-                .ignoresSafeArea(.keyboard, edges: .bottom)
-
-            // Input bar (bottom)
+        }
+        .safeAreaInset(edge: .bottom) {
+            // Input bar pinned to keyboard-aware safe area
             inputBar
+                .padding(.bottom, keyboard.height)
+                .animation(.easeInOut(duration: 0.25), value: keyboard.height)
         }
         .background(Color(.systemGroupedBackground))
         .sheet(isPresented: $showSettings) {
@@ -72,6 +75,10 @@ struct MainView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            isInputFocused = false
+        }
         .animation(.easeInOut(duration: 0.3), value: viewModel.state)
     }
 
@@ -420,6 +427,7 @@ struct MainView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
         }
+        .scrollDismissesKeyboard(.interactively)
         .background(Color(.systemGroupedBackground))
         .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
     }
@@ -690,6 +698,7 @@ struct MainView: View {
                 Spacer(minLength: 40)
             }
         }
+        .scrollDismissesKeyboard(.interactively)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .transition(.opacity)
     }
