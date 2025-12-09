@@ -80,6 +80,15 @@
             <ActionContent
                title = "Run Script"
                scriptText = "// https://www.theswift.dev/posts/auto-increment-your-build-numbers&#10;&#10;// Open your scheme settings (Product &gt; Scheme &gt; Edit Scheme [or] click your scheme in the top bar and then click Edit Scheme [or] shift + command + &quot;,&quot;)&#10;// Expand the Archive settings&#10;// Click Post-actions&#10;// Click the &quot;+&quot;&#10;// Click New Run Script Action&#10;// Make sure &quot;Provide build settings from ...&quot; is set to your target (the script needs access to the project directory variable)&#10;// Paste in this code&#10;&#10;cd &quot;${PROJECT_DIR}&quot; ; agvtool bump&#10;">
+               <EnvironmentBuildable>
+                  <BuildableReference
+                     BuildableIdentifier = "primary"
+                     BlueprintIdentifier = "716DD7EB2E9B6E510025D295"
+                     BuildableName = "T2C.app"
+                     BlueprintName = "T2C"
+                     ReferencedContainer = "container:T2C.xcodeproj">
+                  </BuildableReference>
+               </EnvironmentBuildable>
             </ActionContent>
          </ExecutionAction>
       </PostActions>
