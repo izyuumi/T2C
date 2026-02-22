@@ -509,7 +509,7 @@ struct MainView: View {
         VStack(spacing: 24) {
             Spacer()
 
-            // Success icon with animated ring
+            // Success icon with animated ring + confetti
             ZStack {
                 Circle()
                     .fill(Color.green.opacity(0.1))
@@ -525,6 +525,9 @@ struct MainView: View {
             }
             .scaleEffect(1.0)
             .animation(.spring(response: 0.4, dampingFraction: 0.6), value: viewModel.state)
+            .onAppear {
+                HapticUtil.playSuccess()
+            }
 
             VStack(spacing: 8) {
                 Text("saved.title", tableName: nil, bundle: .main, comment: "Saved title")
@@ -618,6 +621,9 @@ struct MainView: View {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .font(.system(size: 36))
                         .foregroundStyle(.red)
+                }
+                .onAppear {
+                    HapticUtil.playError()
                 }
 
                 VStack(spacing: 16) {
