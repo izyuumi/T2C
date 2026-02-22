@@ -16,6 +16,7 @@ struct MainView: View {
     @State private var showSettings = false
     @State private var showRecurrenceEditor = false
     @State private var showTemplates = false
+    @State private var savedAsTemplate = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -566,6 +567,21 @@ struct MainView: View {
                 .buttonBorderShape(.capsule)
                 .accessibilityLabel("Open Calendar app")
                 .accessibilityHint("Opens the Calendar app to view your event")
+
+                Button {
+                    let name = event.title.isEmpty ? "Untitled" : event.title
+                    TemplateService.shared.addTemplate(
+                        name: "📌 \(name)",
+                        text: viewModel.lastInputText
+                    )
+                    savedAsTemplate = true
+                } label: {
+                    Label("Save as Template", systemImage: "doc.on.doc")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                }
+                .disabled(savedAsTemplate || viewModel.lastInputText.isEmpty)
+                .foregroundStyle(savedAsTemplate ? .green : .accentColor)
 
                 Button(String(localized: "saved.button.add_another")) {
                     viewModel.reset()

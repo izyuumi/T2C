@@ -46,6 +46,8 @@ final class MainViewModel: ObservableObject {
     // MARK: - Published Properties
 
     @Published var text: String = ""
+    /// The text that was last successfully parsed/saved (for template creation)
+    @Published private(set) var lastInputText: String = ""
     @Published var state: UIState = .idle
     @Published var availableCalendars: [EKCalendar] = []
     @Published var selectedCalendarId: String?
@@ -248,6 +250,7 @@ final class MainViewModel: ObservableObject {
             analytics.trackEventSaved(isRecurring: event.recurrence != nil)
 
             logger.info("save: success, transitioning to saved state")
+            lastInputText = text
             clearDraft()
             state = .saved(event)
 
@@ -271,6 +274,7 @@ final class MainViewModel: ObservableObject {
     func reset() {
         logger.debug("reset: returning to idle state")
         text = ""
+        lastInputText = ""
         clearDraft()
         state = .idle
     }
