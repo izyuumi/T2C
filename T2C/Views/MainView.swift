@@ -16,6 +16,7 @@ struct MainView: View {
     @State private var showSettings = false
     @State private var showRecurrenceEditor = false
     @State private var showTemplates = false
+    @StateObject private var speech = SpeechService()
 
     var body: some View {
         VStack(spacing: 0) {
@@ -726,6 +727,35 @@ struct MainView: View {
                 .focused($isInputFocused)
                 .background(Color(.secondarySystemBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+                .overlay(
+                    Group {
+                        if speech.isListening && !speech.transcript.isEmpty {
+                            Text(speech.transcript)
+                                .font(.body)
+                                .foregroundStyle(.secondary)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 12)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .allowsHitTesting(false)
+                        }
+                    }
+                )
+
+            // Mic button
+            Button {
+                if speech.isListening {
+                    speech.stopListening()
+                    if !speech.transcript.isEmpty {
+                        viewModel.text = speech.transcript
+                    }
+                } else {
+                    Task { try? await speech.startListening() }
+                }
+            } label: {
+                Image(systemName: speech.isListening ? "mic.fill" : "mic")
+                    .font(.system(size: 20))
+                    .foregroundStyle(speech.isListening ? .red : .secondary)
+            }
 
             Button(action: {
                 isInputFocused = false
