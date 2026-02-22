@@ -44,6 +44,11 @@ struct MainView: View {
                 .animation(.easeInOut(duration: 0.25), value: keyboard.height)
         }
         .background(Color(.systemGroupedBackground))
+        .onShake {
+            guard !viewModel.text.isEmpty || viewModel.state != .idle else { return }
+            HapticUtil.playError()
+            viewModel.reset()
+        }
         .sheet(isPresented: $showSettings) {
             SettingsView()
         }
