@@ -38,10 +38,18 @@ struct MainView: View {
                 .frame(maxHeight: .infinity)
         }
         .safeAreaInset(edge: .bottom) {
-            // Input bar pinned to keyboard-aware safe area
-            inputBar
-                .padding(.bottom, keyboard.height)
-                .animation(.easeInOut(duration: 0.25), value: keyboard.height)
+            VStack(spacing: 0) {
+                if isInputFocused {
+                    dateSuggestionChips
+                        .padding(.vertical, 6)
+                        .background(Color(.systemBackground))
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+                inputBar
+            }
+            .padding(.bottom, keyboard.height)
+            .animation(.easeInOut(duration: 0.25), value: keyboard.height)
+            .animation(.easeInOut(duration: 0.2), value: isInputFocused)
         }
         .background(Color(.systemGroupedBackground))
         .sheet(isPresented: $showSettings) {
@@ -710,6 +718,41 @@ struct MainView: View {
                 .font(.subheadline)
             Text(text)
                 .font(.subheadline)
+        }
+    }
+
+    // MARK: - Date Suggestion Chips
+
+    private var dateSuggestionChips: some View {
+        let chips = [
+            ("Today", "today"),
+            ("Tomorrow", "tomorrow"),
+            ("Next Mon", "next Monday"),
+            ("Next Fri", "next Friday"),
+            ("This Weekend", "this Saturday"),
+        ]
+        return ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(chips, id: \.0) { label, value in
+                    Button {
+                        if viewModel.text.isEmpty {
+                            viewModel.text = value + " "
+                        } else if !viewModel.text.hasSuffix(" ") {
+                            viewModel.text += " " + value + " "
+                        } else {
+                            viewModel.text += value + " "
+                        }
+                    } label: {
+                        Text(label)
+                            .font(.caption)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
+                            .background(Capsule().fill(Color(.tertiarySystemFill)))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, 16)
         }
     }
 
