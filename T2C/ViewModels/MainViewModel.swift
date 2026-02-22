@@ -248,6 +248,7 @@ final class MainViewModel: ObservableObject {
             analytics.trackEventSaved(isRecurring: event.recurrence != nil)
 
             logger.info("save: success, transitioning to saved state")
+            InputHistoryService.shared.add(text)
             clearDraft()
             state = .saved(event)
 

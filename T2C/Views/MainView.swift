@@ -16,6 +16,7 @@ struct MainView: View {
     @State private var showSettings = false
     @State private var showRecurrenceEditor = false
     @State private var showTemplates = false
+    @State private var inputHistory: [InputHistoryEntry] = []
 
     var body: some View {
         VStack(spacing: 0) {
@@ -135,11 +136,53 @@ struct MainView: View {
             .accessibilityLabel("Templates")
             .accessibilityHint("Opens saved event templates")
 
+            // Recent inputs
+            if !inputHistory.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Text("Recent")
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Button("Clear") {
+                            InputHistoryService.shared.clear()
+                            inputHistory = []
+                        }
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                    }
+                    .padding(.horizontal, 24)
+
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(inputHistory.prefix(8)) { entry in
+                                Button {
+                                    viewModel.text = entry.text
+                                    isInputFocused = true
+                                } label: {
+                                    Text(entry.text)
+                                        .font(.caption)
+                                        .lineLimit(1)
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 6)
+                                        .background(Capsule().fill(Color(.systemGray5)))
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                        .padding(.horizontal, 24)
+                    }
+                }
+                .padding(.top, 4)
+            }
+
             Spacer()
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .transition(.opacity)
+        .onAppear { inputHistory = InputHistoryService.shared.entries() }
         .sheet(isPresented: $showTemplates) {
             TemplatesView { template in
                 applyTemplate(template)
