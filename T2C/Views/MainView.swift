@@ -18,6 +18,7 @@ struct MainView: View {
     @State private var showTemplates = false
     @State private var showToast = false
     @State private var toastMessage: String = ""
+    @State private var toastTask: Task<Void, Never>? = nil
 
     var body: some View {
         VStack(spacing: 0) {
@@ -58,19 +59,26 @@ struct MainView: View {
         .onChange(of: viewModel.state) { _, newState in
             switch newState {
             case .saved(let event):
+                toastTask?.cancel()
                 toastMessage = toastSummary(for: event)
                 withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
                     showToast = true
                 }
-                Task { @MainActor in
-                    try? await Task.sleep(for: .seconds(3))
-                    withAnimation(.easeOut(duration: 0.3)) {
-                        showToast = false
+                toastTask = Task { @MainActor in
+                    do {
+                        try await Task.sleep(for: .seconds(3))
+                        withAnimation(.easeOut(duration: 0.3)) {
+                            showToast = false
+                        }
+                        try await Task.sleep(for: .milliseconds(300))
+                        viewModel.reset()
+                    } catch {
+                        // Task was cancelled (e.g. by undo or a second save) — do nothing
                     }
-                    try? await Task.sleep(for: .milliseconds(300))
-                    viewModel.reset()
                 }
             case .idle:
+                toastTask?.cancel()
+                toastTask = nil
                 if showToast {
                     withAnimation(.easeOut(duration: 0.2)) {
                         showToast = false
