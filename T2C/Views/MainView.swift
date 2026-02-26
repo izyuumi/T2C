@@ -16,6 +16,8 @@ struct MainView: View {
     @State private var showSettings = false
     @State private var showRecurrenceEditor = false
     @State private var showTemplates = false
+    @State private var showToast = false
+    @State private var toastMessage: String = ""
 
     var body: some View {
         VStack(spacing: 0) {
@@ -44,6 +46,40 @@ struct MainView: View {
                 .animation(.easeInOut(duration: 0.25), value: keyboard.height)
         }
         .background(Color(.systemGroupedBackground))
+        .overlay(alignment: .top) {
+            if showToast {
+                ToastView(message: toastMessage)
+                    .padding(.top, 64)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .zIndex(1)
+            }
+        }
+        .animation(.spring(response: 0.4, dampingFraction: 0.75), value: showToast)
+        .onChange(of: viewModel.state) { _, newState in
+            switch newState {
+            case .saved(let event):
+                toastMessage = toastSummary(for: event)
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
+                    showToast = true
+                }
+                Task { @MainActor in
+                    try? await Task.sleep(for: .seconds(3))
+                    withAnimation(.easeOut(duration: 0.3)) {
+                        showToast = false
+                    }
+                    try? await Task.sleep(for: .milliseconds(300))
+                    viewModel.reset()
+                }
+            case .idle:
+                if showToast {
+                    withAnimation(.easeOut(duration: 0.2)) {
+                        showToast = false
+                    }
+                }
+            default:
+                break
+            }
+        }
         .sheet(isPresented: $showSettings) {
             SettingsView()
         }
@@ -791,6 +827,16 @@ struct MainView: View {
     }
 
     // MARK: - Helpers
+
+    /// Formats a one-line event summary for the confirmation toast.
+    /// Example: "Lunch — Today at 12:00 PM"
+    private func toastSummary(for event: CalendarEvent) -> String {
+        let formatter = DateFormatter()
+        formatter.doesRelativeDateFormatting = true
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return "\(event.title) — \(formatter.string(from: event.start))"
+    }
 
     private func openCalendarApp() {
         if let url = URL(string: "calshow://") {
