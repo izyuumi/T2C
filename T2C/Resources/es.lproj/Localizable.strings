@@ -96,3 +96,5 @@
 "settings.haptic_feedback" = "Retroalimentación háptica";
 "settings.version" = "Versión";
 "preview.duration_indicator" = "(por defecto)";
+
+"preview.timezone.converted" = "Hora convertida de %@ a tu zona horaria local";

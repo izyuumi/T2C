@@ -171,14 +171,27 @@ final class NLParser {
     func parse(_ text: String, tz timezone: TimeZone = .current) async throws -> CalendarEvent {
         logger.info("parse: input='\(text)' timezone=\(timezone.identifier)")
 
+        // Detect timezone reference in the input text
+        let detectedTZ = TimezoneDetector.detect(in: text)
+        let parseTimezone = detectedTZ?.timezone ?? timezone
+        if let detected = detectedTZ {
+            logger.info("parse: detected timezone '\(detected.abbreviation)' → \(detected.timezone.identifier)")
+        }
+
         // Build prompt with context
-        let todayISO = DateUtil.toISO8601(Date(), timezone: timezone)
+        let todayISO = DateUtil.toISO8601(Date(), timezone: parseTimezone)
+        var timezoneContext = "Current timezone: \(timezone.identifier)"
+        if let detected = detectedTZ, detected.timezone.identifier != timezone.identifier {
+            timezoneContext += "\nEvent timezone mentioned in text: \(detected.timezone.identifier) (\(detected.abbreviation))"
+            timezoneContext += "\nIMPORTANT: The time in the text is in \(detected.timezone.identifier). Output the start/end dates in \(detected.timezone.identifier) timezone offset, so the app can convert to the user's local time."
+        }
+
         let prompt = """
         Parse this natural language text into a calendar event:
         "\(text)"
 
         Context:
-        - Current timezone: \(timezone.identifier)
+        - \(timezoneContext)
         - Today's date/time: \(todayISO)
         """
 
@@ -207,7 +220,7 @@ final class NLParser {
             }
         }
 
-        let event = CalendarEvent(
+        var event = CalendarEvent(
             title: parsed.title,
             start: start,
             end: end,
@@ -216,6 +229,13 @@ final class NLParser {
             recurrence: recurrence,
             selectedCalendarId: nil
         )
+
+        // Attach detected timezone metadata if a timezone was found in the text
+        if let detected = detectedTZ {
+            event.detectedTimezoneIdentifier = detected.timezone.identifier
+            event.detectedTimezoneLabel = detected.abbreviation
+            logger.info("parse: attaching detected timezone '\(detected.abbreviation)' (\(detected.timezone.identifier)) to event")
+        }
 
         logger.info("parse: successfully parsed event: title=\(parsed.title) start=\(start)")
 

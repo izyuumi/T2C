@@ -96,3 +96,5 @@
 "settings.haptic_feedback" = "햅틱 피드백";
 "settings.version" = "버전";
 "preview.duration_indicator" = "(기본값)";
+
+"preview.timezone.converted" = "%@ 에서 현지 시간대로 변환된 시간";

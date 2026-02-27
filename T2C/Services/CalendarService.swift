@@ -32,6 +32,18 @@ struct CalendarEvent: Codable, Equatable {
     var recurrence: RecurrenceRule?
     var selectedCalendarId: String?
     var wasEndTimeInferred: Bool = false  // Track if we applied default duration
+
+    /// Timezone detected in the original input text, if any (stored as IANA identifier)
+    var detectedTimezoneIdentifier: String?
+
+    /// Abbreviation or offset string that was matched (e.g., "PST", "GMT+9")
+    var detectedTimezoneLabel: String?
+
+    /// Resolved TimeZone from the detected identifier
+    var detectedTimezone: TimeZone? {
+        detectedTimezoneIdentifier.flatMap { TimeZone(identifier: $0) }
+            ?? detectedTimezoneIdentifier.flatMap { TimeZone(secondsFromGMT: Int($0) ?? 0) }
+    }
 }
 
 private let logger = Logger(subsystem: "com.t2c.app", category: "CalendarService")

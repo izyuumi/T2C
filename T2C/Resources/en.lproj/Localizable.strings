@@ -140,3 +140,5 @@
 "templates.new.cancel" = "Cancel";
 "templates.new.save" = "Save";
 "templates.load_samples" = "Load Sample Templates";
+
+"preview.timezone.converted" = "Time converted from %@ to your local timezone";

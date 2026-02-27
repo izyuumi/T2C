@@ -96,3 +96,5 @@
 "settings.haptic_feedback" = "触覚フィードバック";
 "settings.version" = "バージョン";
 "preview.duration_indicator" = "（デフォルト）";
+
+"preview.timezone.converted" = "%@ からローカルタイムゾーンに時刻を変換しました";

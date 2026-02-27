@@ -96,3 +96,5 @@
 "settings.haptic_feedback" = "Retour haptique";
 "settings.version" = "Version";
 "preview.duration_indicator" = "(par défaut)";
+
+"preview.timezone.converted" = "Heure convertie de %@ vers votre fuseau horaire local";
