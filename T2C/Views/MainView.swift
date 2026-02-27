@@ -250,7 +250,7 @@ struct MainView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     .padding(.horizontal, 20)
                     .padding(.top, 8)
-                    .accessibilityLabel("Timezone converted from \(label)")
+                    .accessibilityLabel(String(format: NSLocalizedString("accessibility.timezone_converted_from", comment: "Accessibility label for timezone conversion result, %@ is the detected timezone label"), label))
                 }
 
                 // Date & Time Section

@@ -15,7 +15,13 @@ enum TimezoneDetector {
 
     // MARK: - Abbreviation Map
 
-    /// Mapping from common timezone abbreviations to IANA identifiers
+    /// Mapping from common timezone abbreviations to IANA identifiers.
+    ///
+    /// Ambiguity resolution strategy: defaults to North American / most-common interpretation.
+    /// Known collisions:
+    ///   - "IST" → Europe/Dublin (Irish Standard Time); use "IST_INDIA" or "IST_ISRAEL" for others
+    ///   - "CST" → America/Chicago (Central Standard Time); use "CST_CHINA" for Asia/Shanghai
+    ///   - "AST" → America/Halifax (Atlantic Standard Time); use "AST_ARABIA" for Asia/Riyadh
     private static let abbreviationToIANA: [String: String] = [
         // North America
         "PST": "America/Los_Angeles",
@@ -37,7 +43,7 @@ enum TimezoneDetector {
         "AKST": "America/Anchorage",
         "AKDT": "America/Anchorage",
         "HST": "Pacific/Honolulu",
-        "HDT": "Pacific/Honolulu",
+        // HDT removed: Hawaii does not observe daylight saving time
 
         // Europe
         "GMT": "UTC",
@@ -119,9 +125,9 @@ enum TimezoneDetector {
             let fullRange = Range(match.range, in: text)!
             let fullMatch = String(text[fullRange])
 
-            let offsetGroupIndex = hasPrefix ? 1 : 0
-            guard match.numberOfRanges > offsetGroupIndex,
-                  let offsetRange = Range(match.range(at: hasPrefix ? 1 : 0), in: text) else { continue }
+            // Both patterns use capture group 1 for the offset value
+            guard match.numberOfRanges > 1,
+                  let offsetRange = Range(match.range(at: 1), in: text) else { continue }
             let offsetStr = String(text[offsetRange])
 
             if let tz = parseOffsetString(offsetStr) {
@@ -139,7 +145,7 @@ enum TimezoneDetector {
 
         let body = String(cleaned.dropFirst())
         let parts = body.split(separator: ":")
-        guard let hours = Int(parts[0]) else { return nil }
+        guard let firstPart = parts.first, let hours = Int(firstPart) else { return nil }
         let minutes = parts.count > 1 ? Int(parts[1]) ?? 0 : 0
         var seconds = hours * 3600 + minutes * 60
         if sign == "-" { seconds = -seconds }
