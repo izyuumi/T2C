@@ -847,7 +847,11 @@ struct MainView: View {
         formatter.doesRelativeDateFormatting = true
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
-        return "\(event.title) — \(formatter.string(from: event.start))"
+        let dateText = formatter.string(from: event.start)
+        return String(
+            localized: "toast.saved.summary \(event.title) \(dateText)",
+            defaultValue: "\(event.title) — \(dateText)"
+        )
     }
 
     private func openCalendarApp() {
