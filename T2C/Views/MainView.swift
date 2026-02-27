@@ -81,8 +81,10 @@ struct MainView: View {
         }
         .onDisappear {
             toastTask?.cancel()
+            withAnimation(.easeOut(duration: 0.2)) {
+                showToast = false
+            }
             toastTask = nil
-            showToast = false
             toastMessage = ""
         }
         .sheet(isPresented: $showSettings) {
