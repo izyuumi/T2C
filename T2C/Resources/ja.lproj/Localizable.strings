@@ -96,3 +96,5 @@
 "settings.haptic_feedback" = "触覚フィードバック";
 "settings.version" = "バージョン";
 "preview.duration_indicator" = "（デフォルト）";
+
+"toast.saved.summary" = "%@ — %@";

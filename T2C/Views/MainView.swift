@@ -86,6 +86,11 @@ struct MainView: View {
             default:
                 toastTask?.cancel()
                 toastTask = nil
+                if showToast {
+                    withAnimation(.easeOut(duration: 0.2)) {
+                        showToast = false
+                    }
+                }
             }
         }
         .onDisappear {
@@ -849,8 +854,9 @@ struct MainView: View {
         formatter.timeStyle = .short
         let dateText = formatter.string(from: event.start)
         return String(
-            localized: "toast.saved.summary \(event.title) \(dateText)",
-            defaultValue: "\(event.title) — \(dateText)"
+            format: NSLocalizedString("toast.saved.summary", value: "%@ — %@", comment: "Confirmation toast: event title and date/time, e.g. 'Lunch — Today at 12:00 PM'"),
+            event.title,
+            dateText
         )
     }
 
