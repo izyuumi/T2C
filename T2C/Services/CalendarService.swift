@@ -42,7 +42,6 @@ struct CalendarEvent: Codable, Equatable {
     /// Resolved TimeZone from the detected identifier
     var detectedTimezone: TimeZone? {
         detectedTimezoneIdentifier.flatMap { TimeZone(identifier: $0) }
-            ?? detectedTimezoneIdentifier.flatMap { TimeZone(secondsFromGMT: Int($0) ?? 0) }
     }
 }
 

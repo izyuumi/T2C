@@ -108,7 +108,7 @@ enum TimezoneDetector {
         // Patterns: GMT+9, UTC+9, GMT-5, UTC-05:30, +09:00, -05:00
         let patterns: [(String, Bool)] = [
             (#"(?:GMT|UTC)\s*([+-]\d{1,2}(?::\d{2})?)"#, true),   // GMT+9, UTC+05:30
-            (#"\b([+-]\d{2}:\d{2})\b"#, false),                     // standalone +09:00
+            (#"(?<!\d)([+-]\d{2}:\d{2})(?!\d)"#, false),              // standalone +09:00
         ]
 
         for (pattern, hasPrefix) in patterns {
