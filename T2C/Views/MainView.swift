@@ -75,22 +75,8 @@ struct MainView: View {
                         // Task was cancelled (e.g. by undo or a second save) — do nothing
                     }
                 }
-            case .idle:
-                toastTask?.cancel()
-                toastTask = nil
-                if showToast {
-                    withAnimation(.easeOut(duration: 0.2)) {
-                        showToast = false
-                    }
-                }
             default:
-                toastTask?.cancel()
-                toastTask = nil
-                if showToast {
-                    withAnimation(.easeOut(duration: 0.2)) {
-                        showToast = false
-                    }
-                }
+                hideToast()
             }
         }
         .onDisappear {
@@ -844,6 +830,17 @@ struct MainView: View {
     }
 
     // MARK: - Helpers
+
+    /// Cancels any pending toast dismissal task and animates the toast out.
+    private func hideToast() {
+        toastTask?.cancel()
+        toastTask = nil
+        if showToast {
+            withAnimation(.easeOut(duration: 0.2)) {
+                showToast = false
+            }
+        }
+    }
 
     /// Formats a one-line event summary for the confirmation toast.
     /// Example: "Lunch — Today at 12:00 PM"
