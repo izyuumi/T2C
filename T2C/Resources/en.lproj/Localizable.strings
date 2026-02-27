@@ -141,4 +141,4 @@
 "templates.new.save" = "Save";
 "templates.load_samples" = "Load Sample Templates";
 
-"toast.saved.summary" = "%@ — %@";
+"toast.saved.summary" = "%1$@ — %2$@";

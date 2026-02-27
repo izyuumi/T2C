@@ -97,4 +97,4 @@
 "settings.version" = "版本";
 "preview.duration_indicator" = "（默认）";
 
-"toast.saved.summary" = "%@ — %@";
+"toast.saved.summary" = "%1$@：%2$@";

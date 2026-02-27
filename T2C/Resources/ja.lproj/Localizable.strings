@@ -97,4 +97,4 @@
 "settings.version" = "バージョン";
 "preview.duration_indicator" = "（デフォルト）";
 
-"toast.saved.summary" = "%@ — %@";
+"toast.saved.summary" = "%1$@　—　%2$@";

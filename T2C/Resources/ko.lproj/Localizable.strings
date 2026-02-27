@@ -97,4 +97,4 @@
 "settings.version" = "버전";
 "preview.duration_indicator" = "(기본값)";
 
-"toast.saved.summary" = "%@ — %@";
+"toast.saved.summary" = "%1$@ — %2$@";

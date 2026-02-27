@@ -854,7 +854,7 @@ struct MainView: View {
         formatter.timeStyle = .short
         let dateText = formatter.string(from: event.start)
         return String(
-            format: NSLocalizedString("toast.saved.summary", value: "%@ — %@", comment: "Confirmation toast: event title and date/time, e.g. 'Lunch — Today at 12:00 PM'"),
+            format: NSLocalizedString("toast.saved.summary", value: "%1$@ — %2$@", comment: "Confirmation toast: event title and date/time, e.g. 'Lunch — Today at 12:00 PM'. Use positional specifiers (%1$@ = title, %2$@ = date/time) to allow locale-appropriate phrase order and punctuation."),
             event.title,
             dateText
         )
