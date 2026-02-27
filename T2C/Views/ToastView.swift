@@ -16,6 +16,7 @@ struct ToastView: View {
             Image(systemName: "checkmark.circle.fill")
                 .foregroundStyle(.green)
                 .font(.system(size: 18, weight: .semibold))
+                .accessibilityHidden(true)
 
             Text(message)
                 .font(.subheadline)
@@ -28,6 +29,8 @@ struct ToastView: View {
         .background(.regularMaterial)
         .clipShape(Capsule())
         .shadow(color: Color.black.opacity(0.12), radius: 12, x: 0, y: 4)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(message)
     }
 }
 

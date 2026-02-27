@@ -55,7 +55,6 @@ struct MainView: View {
                     .zIndex(1)
             }
         }
-        .animation(.spring(response: 0.4, dampingFraction: 0.75), value: showToast)
         .onChange(of: viewModel.state) { _, newState in
             switch newState {
             case .saved(let event):
@@ -85,8 +84,13 @@ struct MainView: View {
                     }
                 }
             default:
-                break
+                toastTask?.cancel()
+                toastTask = nil
             }
+        }
+        .onDisappear {
+            toastTask?.cancel()
+            toastTask = nil
         }
         .sheet(isPresented: $showSettings) {
             SettingsView()
