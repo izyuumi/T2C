@@ -82,6 +82,8 @@ struct MainView: View {
         .onDisappear {
             toastTask?.cancel()
             toastTask = nil
+            showToast = false
+            toastMessage = ""
         }
         .sheet(isPresented: $showSettings) {
             SettingsView()
