@@ -15,78 +15,80 @@ enum TimezoneDetector {
 
     // MARK: - Abbreviation Map
 
-    /// Mapping from common timezone abbreviations to IANA identifiers.
+    /// Mapping from common timezone abbreviations to fixed UTC offsets.
     ///
-    /// Ambiguity resolution strategy: most-common global interpretation.
-    /// Known collisions and resolutions:
-    ///   - "IST" → Asia/Kolkata (India Standard Time, UTC+5:30); statistically most common global usage.
-    ///             Ireland uses "GMT" in winter and "BST" in summer, making bare "IST" rare for Dublin.
-    ///   - "CST" → America/Chicago (Central Standard Time); China Standard Time is less commonly
-    ///             written as "CST" — users in China more often write "UTC+8" or "CST+8".
-    ///   - "AST" → America/Halifax (Atlantic Standard Time); Arabia Standard Time users typically
-    ///             write "AST" less frequently than North American users.
-    private static let abbreviationToIANA: [String: String] = [
+    /// These abbreviations encode a specific offset, so using a regional IANA zone can
+    /// silently shift the offset based on the current date's DST rules.
+    private static let abbreviationToFixedOffset: [String: Int] = [
         // North America
-        "PST": "America/Los_Angeles",
-        "PDT": "America/Los_Angeles",
-        "PT":  "America/Los_Angeles",
-        "MST": "America/Denver",
-        "MDT": "America/Denver",
-        "MT":  "America/Denver",
-        "CST": "America/Chicago",
-        "CDT": "America/Chicago",
-        "CT":  "America/Chicago",
-        "EST": "America/New_York",
-        "EDT": "America/New_York",
-        "ET":  "America/New_York",
-        "AST": "America/Halifax",
-        "ADT": "America/Halifax",
-        "NST": "America/St_Johns",
-        "NDT": "America/St_Johns",
-        "AKST": "America/Anchorage",
-        "AKDT": "America/Anchorage",
-        "HST": "Pacific/Honolulu",
-        // HDT removed: Hawaii does not observe daylight saving time
+        "PST": -8 * 3600,
+        "PDT": -7 * 3600,
+        "MST": -7 * 3600,
+        "MDT": -6 * 3600,
+        "CST": -6 * 3600,
+        "CDT": -5 * 3600,
+        "EST": -5 * 3600,
+        "EDT": -4 * 3600,
+        "AST": -4 * 3600,
+        "ADT": -3 * 3600,
+        "NST": -(3 * 3600 + 30 * 60),
+        "NDT": -(2 * 3600 + 30 * 60),
+        "AKST": -9 * 3600,
+        "AKDT": -8 * 3600,
+        "HST": -10 * 3600,
 
         // Europe
-        "GMT": "UTC",
-        "UTC": "UTC",
-        "WET": "Europe/Lisbon",
-        "WEST": "Europe/Lisbon",
-        "CET": "Europe/Paris",
-        "CEST": "Europe/Paris",
-        "EET": "Europe/Athens",
-        "EEST": "Europe/Athens",
-        "BST": "Europe/London",
-        "MSK": "Europe/Moscow",
+        "GMT": 0,
+        "UTC": 0,
+        "WET": 0,
+        "WEST": 1 * 3600,
+        "CET": 1 * 3600,
+        "CEST": 2 * 3600,
+        "EET": 2 * 3600,
+        "EEST": 3 * 3600,
+        "BST": 1 * 3600,
+        "MSK": 3 * 3600,
 
         // Asia / Pacific
-        "IST": "Asia/Kolkata",  // India Standard Time (UTC+5:30) — most common global usage
-        "JST": "Asia/Tokyo",
-        "KST": "Asia/Seoul",
-        "HKT": "Asia/Hong_Kong",
-        "SGT": "Asia/Singapore",
-        "ICT": "Asia/Bangkok",
-        "WIB": "Asia/Jakarta",
-        "PKT": "Asia/Karachi",
-        "NPT": "Asia/Kathmandu",
-        "AEST": "Australia/Sydney",
-        "AEDT": "Australia/Sydney",
-        "ACST": "Australia/Adelaide",
-        "ACDT": "Australia/Adelaide",
-        "AWST": "Australia/Perth",
-        "NZST": "Pacific/Auckland",
-        "NZDT": "Pacific/Auckland",
-        "CHST": "Pacific/Guam",
-        "SST": "Pacific/Pago_Pago",
+        "IST": 5 * 3600 + 30 * 60,  // India Standard Time (UTC+5:30) — most common global usage
+        "JST": 9 * 3600,
+        "KST": 9 * 3600,
+        "HKT": 8 * 3600,
+        "SGT": 8 * 3600,
+        "ICT": 7 * 3600,
+        "WIB": 7 * 3600,
+        "PKT": 5 * 3600,
+        "NPT": 5 * 3600 + 45 * 60,
+        "AEST": 10 * 3600,
+        "AEDT": 11 * 3600,
+        "ACST": 9 * 3600 + 30 * 60,
+        "ACDT": 10 * 3600 + 30 * 60,
+        "AWST": 8 * 3600,
+        "NZST": 12 * 3600,
+        "NZDT": 13 * 3600,
+        "CHST": 10 * 3600,
+        "SST": -11 * 3600,
 
         // Middle East / Africa
-        "IRST": "Asia/Tehran",
-        "GST": "Asia/Dubai",
-        "EAT": "Africa/Nairobi",
-        "WAT": "Africa/Lagos",
-        "CAT": "Africa/Harare",
-        "SAST": "Africa/Johannesburg",
+        "IRST": 3 * 3600 + 30 * 60,
+        "GST": 4 * 3600,
+        "EAT": 3 * 3600,
+        "WAT": 1 * 3600,
+        "CAT": 2 * 3600,
+        "SAST": 2 * 3600,
+    ]
+
+    /// Mapping from regional timezone labels to IANA identifiers.
+    ///
+    /// These labels describe a locale-specific timezone family rather than a fixed offset,
+    /// so preserving the region's DST rules is the correct behavior.
+    private static let abbreviationToIANA: [String: String] = [
+        // North America
+        "PT":  "America/Los_Angeles",
+        "MT":  "America/Denver",
+        "CT":  "America/Chicago",
+        "ET":  "America/New_York",
+        // HDT removed: Hawaii does not observe daylight saving time
     ]
 
     // MARK: - Detection
@@ -155,23 +157,29 @@ enum TimezoneDetector {
 
     /// Pre-compiled regexes for each abbreviation, keyed by abbreviation (longest-first order).
     /// Built once on first access; eliminates repeated NSRegularExpression compilation per parse call.
-    private static let abbreviationRegexes: [(abbreviation: String, ianaID: String, regex: NSRegularExpression)] = {
-        abbreviationToIANA
-            .keys
+    private static let abbreviationRegexes: [(abbreviation: String, regex: NSRegularExpression)] = {
+        Set(abbreviationToFixedOffset.keys).union(abbreviationToIANA.keys)
             .sorted { $0.count > $1.count }  // longer first to avoid prefix shadowing
-            .compactMap { abbr -> (String, String, NSRegularExpression)? in
+            .compactMap { abbr -> (String, NSRegularExpression)? in
                 let pattern = #"(?<![A-Za-z])"# + NSRegularExpression.escapedPattern(for: abbr) + #"(?![A-Za-z])"#
                 guard let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) else { return nil }
-                return (abbr, abbreviationToIANA[abbr]!, regex)
+                return (abbr, regex)
             }
     }()
 
     private static func detectAbbreviation(in text: String) -> (timezone: TimeZone, abbreviation: String)? {
         let range = NSRange(text.startIndex..., in: text)
 
-        for (abbr, ianaID, regex) in abbreviationRegexes {
+        for (abbr, regex) in abbreviationRegexes {
             guard regex.firstMatch(in: text, range: range) != nil else { continue }
-            if let tz = TimeZone(identifier: ianaID) {
+            if let secondsFromGMT = abbreviationToFixedOffset[abbr],
+               let tz = TimeZone(secondsFromGMT: secondsFromGMT) {
+                logger.debug("detectAbbreviation: found '\(abbr)' → fixed UTC offset \(secondsFromGMT)")
+                return (tz, abbr.uppercased())
+            }
+
+            if let ianaID = abbreviationToIANA[abbr],
+               let tz = TimeZone(identifier: ianaID) {
                 logger.debug("detectAbbreviation: found '\(abbr)' → \(ianaID)")
                 return (tz, abbr.uppercased())
             }
