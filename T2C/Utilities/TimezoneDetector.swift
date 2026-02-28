@@ -17,11 +17,14 @@ enum TimezoneDetector {
 
     /// Mapping from common timezone abbreviations to IANA identifiers.
     ///
-    /// Ambiguity resolution strategy: defaults to North American / most-common interpretation.
-    /// Known collisions:
-    ///   - "IST" → Europe/Dublin (Irish Standard Time); use "IST_INDIA" or "IST_ISRAEL" for others
-    ///   - "CST" → America/Chicago (Central Standard Time); use "CST_CHINA" for Asia/Shanghai
-    ///   - "AST" → America/Halifax (Atlantic Standard Time); use "AST_ARABIA" for Asia/Riyadh
+    /// Ambiguity resolution strategy: most-common global interpretation.
+    /// Known collisions and resolutions:
+    ///   - "IST" → Asia/Kolkata (India Standard Time, UTC+5:30); statistically most common global usage.
+    ///             Ireland uses "GMT" in winter and "BST" in summer, making bare "IST" rare for Dublin.
+    ///   - "CST" → America/Chicago (Central Standard Time); China Standard Time is less commonly
+    ///             written as "CST" — users in China more often write "UTC+8" or "CST+8".
+    ///   - "AST" → America/Halifax (Atlantic Standard Time); Arabia Standard Time users typically
+    ///             write "AST" less frequently than North American users.
     private static let abbreviationToIANA: [String: String] = [
         // North America
         "PST": "America/Los_Angeles",
@@ -55,18 +58,16 @@ enum TimezoneDetector {
         "EET": "Europe/Athens",
         "EEST": "Europe/Athens",
         "BST": "Europe/London",
-        "IST": "Europe/Dublin",
         "MSK": "Europe/Moscow",
 
         // Asia / Pacific
+        "IST": "Asia/Kolkata",  // India Standard Time (UTC+5:30) — most common global usage
         "JST": "Asia/Tokyo",
         "KST": "Asia/Seoul",
-        "CST_CHINA": "Asia/Shanghai",  // ambiguous; handled below
         "HKT": "Asia/Hong_Kong",
         "SGT": "Asia/Singapore",
         "ICT": "Asia/Bangkok",
         "WIB": "Asia/Jakarta",
-        "IST_INDIA": "Asia/Kolkata",  // ambiguous; handled below
         "PKT": "Asia/Karachi",
         "NPT": "Asia/Kathmandu",
         "AEST": "Australia/Sydney",
@@ -80,10 +81,8 @@ enum TimezoneDetector {
         "SST": "Pacific/Pago_Pago",
 
         // Middle East / Africa
-        "AST_ARABIA": "Asia/Riyadh",
         "IRST": "Asia/Tehran",
         "GST": "Asia/Dubai",
-        "IST_ISRAEL": "Asia/Jerusalem",
         "EAT": "Africa/Nairobi",
         "WAT": "Africa/Lagos",
         "CAT": "Africa/Harare",
