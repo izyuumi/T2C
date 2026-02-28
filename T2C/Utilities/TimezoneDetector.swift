@@ -174,8 +174,6 @@ enum TimezoneDetector {
         for (abbr, regex) in abbreviationRegexes {
             for match in regex.matches(in: text, range: range) {
                 guard let matchRange = Range(match.range, in: text) else { continue }
-                let matchedText = String(text[matchRange])
-                guard matchedText == matchedText.uppercased() else { continue }
 
                 if let currentEarliest = earliestMatch {
                     let startsEarlier = match.range.location < currentEarliest.range.location
