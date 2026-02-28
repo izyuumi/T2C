@@ -12,6 +12,7 @@ private let logger = Logger(subsystem: "com.t2c.app", category: "TimezoneDetecto
 
 /// Detects timezone abbreviations and UTC offsets from natural language text
 enum TimezoneDetector {
+    private typealias DetectionMatch = (timezone: TimeZone, abbreviation: String, location: Int)
 
     // MARK: - Abbreviation Map
 
@@ -96,14 +97,18 @@ enum TimezoneDetector {
     /// Detect a timezone reference in the given text.
     /// Returns the matched TimeZone and the abbreviation/offset string that was found.
     static func detect(in text: String) -> (timezone: TimeZone, abbreviation: String)? {
-        // 1. Look for UTC/GMT offsets: GMT+9, UTC-5, UTC+05:30, +09:00
-        if let result = detectOffset(in: text) {
-            return result
-        }
+        let matches = [
+            detectOffset(in: text),
+            detectAbbreviation(in: text),
+        ].compactMap { $0 }
 
-        // 2. Look for timezone abbreviations (whole-word, uppercase-only)
-        if let result = detectAbbreviation(in: text) {
-            return result
+        if let earliest = matches.min(by: { lhs, rhs in
+            if lhs.location != rhs.location {
+                return lhs.location < rhs.location
+            }
+            return lhs.abbreviation.count > rhs.abbreviation.count
+        }) {
+            return (earliest.timezone, earliest.abbreviation)
         }
 
         return nil
@@ -119,7 +124,7 @@ enum TimezoneDetector {
         return patterns.compactMap { try? NSRegularExpression(pattern: $0, options: .caseInsensitive) }
     }()
 
-    private static func detectOffset(in text: String) -> (timezone: TimeZone, abbreviation: String)? {
+    private static func detectOffset(in text: String) -> DetectionMatch? {
         let nsRange = NSRange(text.startIndex..., in: text)
         // Collect all matches from all patterns, then pick the earliest by location
         var candidates: [(location: Int, fullMatch: String, offsetStr: String)] = []
@@ -141,7 +146,7 @@ enum TimezoneDetector {
         for candidate in candidates {
             if let tz = parseOffsetString(candidate.offsetStr) {
                 logger.debug("detectOffset: found '\(candidate.fullMatch)' → secondsFromGMT=\(tz.secondsFromGMT())")
-                return (tz, candidate.fullMatch)
+                return (tz, candidate.fullMatch, candidate.location)
             }
         }
         return nil
@@ -164,6 +169,9 @@ enum TimezoneDetector {
         } else {
             minutes = 0
         }
+        guard !(sign == "+" && hours == 14 && minutes != 0) else { return nil }
+        guard !(sign == "-" && hours == 12 && minutes != 0) else { return nil }
+
         var seconds = hours * 3600 + minutes * 60
         if sign == "-" { seconds = -seconds }
 
@@ -182,7 +190,7 @@ enum TimezoneDetector {
             }
     }()
 
-    private static func detectAbbreviation(in text: String) -> (timezone: TimeZone, abbreviation: String)? {
+    private static func detectAbbreviation(in text: String) -> DetectionMatch? {
         let range = NSRange(text.startIndex..., in: text)
         var earliestMatch: (abbreviation: String, range: NSRange)?
 
@@ -211,13 +219,13 @@ enum TimezoneDetector {
         if let secondsFromGMT = abbreviationToFixedOffset[abbr],
            let tz = TimeZone(secondsFromGMT: secondsFromGMT) {
             logger.debug("detectAbbreviation: found '\(abbr)' → fixed UTC offset \(secondsFromGMT)")
-            return (tz, abbr.uppercased())
+            return (tz, abbr.uppercased(), earliestMatch.range.location)
         }
 
         if let ianaID = abbreviationToIANA[abbr],
            let tz = TimeZone(identifier: ianaID) {
             logger.debug("detectAbbreviation: found '\(abbr)' → \(ianaID)")
-            return (tz, abbr.uppercased())
+            return (tz, abbr.uppercased(), earliestMatch.range.location)
         }
 
         return nil

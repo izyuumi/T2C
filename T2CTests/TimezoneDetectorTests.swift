@@ -29,4 +29,21 @@ final class TimezoneDetectorTests: XCTestCase {
         XCTAssertEqual(detected?.abbreviation, "ET")
         XCTAssertEqual(detected?.timezone.identifier, "America/New_York")
     }
+
+    func testDetect_prefersEarliestTimezoneTokenAcrossTokenTypes() {
+        let text = "Meet at 9am ET (UTC-5)"
+        let detected = TimezoneDetector.detect(in: text)
+
+        XCTAssertEqual(detected?.abbreviation, "ET")
+        XCTAssertEqual(detected?.timezone.identifier, "America/New_York")
+    }
+
+    func testDetect_rejectsOffsetsOutsideDocumentedRange() {
+        XCTAssertNil(TimezoneDetector.detect(in: "Meet at 9am UTC+14:30"))
+        XCTAssertNil(TimezoneDetector.detect(in: "Meet at 9am UTC-12:30"))
+
+        let detected = TimezoneDetector.detect(in: "Meet at 9am UTC+14:00")
+        XCTAssertEqual(detected?.abbreviation, "UTC+14:00")
+        XCTAssertEqual(detected?.timezone.secondsFromGMT(), 14 * 3600)
+    }
 }
