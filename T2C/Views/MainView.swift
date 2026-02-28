@@ -65,7 +65,8 @@ struct MainView: View {
                 }
                 toastTask = Task { @MainActor in
                     do {
-                        try await Task.sleep(for: .seconds(3))
+                        // Keep toast visible for the full undo window so the Undo button remains accessible.
+                        try await Task.sleep(for: .seconds(viewModel.undoWindow))
                         withAnimation(.easeOut(duration: 0.3)) {
                             showToast = false
                         }

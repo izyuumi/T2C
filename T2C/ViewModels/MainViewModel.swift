@@ -62,7 +62,7 @@ final class MainViewModel: ObservableObject {
     @Published var canUndo: Bool = false
     private var lastSavedEventId: String?
     private var undoTimer: Timer?
-    private let undoWindow: TimeInterval = 10.0  // 10 seconds to undo
+    let undoWindow: TimeInterval = 10.0  // 10 seconds to undo
 
     // MARK: - Timeout Configuration
 
