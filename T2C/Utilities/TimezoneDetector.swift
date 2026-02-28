@@ -109,19 +109,20 @@ enum TimezoneDetector {
 
     // MARK: - Private Helpers
 
-    private static func detectOffset(in text: String) -> (timezone: TimeZone, abbreviation: String)? {
-        // Patterns: GMT+9, UTC+9, GMT-5, UTC-05:30, +09:00, -05:00
+    private static let offsetRegexes: [NSRegularExpression] = {
         let patterns: [String] = [
             #"(?:GMT|UTC)\s*([+-]\d{1,2}(?::\d{2})?)"#,   // GMT+9, UTC+05:30
             #"(?<!\d)([+-]\d{2}:\d{2})(?!\d)"#,              // standalone +09:00
         ]
+        return patterns.compactMap { try? NSRegularExpression(pattern: $0, options: .caseInsensitive) }
+    }()
 
-        for pattern in patterns {
-            guard let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) else { continue }
+    private static func detectOffset(in text: String) -> (timezone: TimeZone, abbreviation: String)? {
+        for regex in offsetRegexes {
             let range = NSRange(text.startIndex..., in: text)
             guard let match = regex.firstMatch(in: text, range: range) else { continue }
 
-            let fullRange = Range(match.range, in: text)!
+            guard let fullRange = Range(match.range, in: text) else { continue }
             let fullMatch = String(text[fullRange])
 
             // Both patterns use capture group 1 for the offset value
