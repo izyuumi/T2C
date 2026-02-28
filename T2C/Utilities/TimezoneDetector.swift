@@ -114,7 +114,7 @@ enum TimezoneDetector {
     private static let offsetRegexes: [NSRegularExpression] = {
         let patterns: [String] = [
             #"(?:GMT|UTC)\s*([+-]\d{1,2}(?::\d{2})?)"#,   // GMT+9, UTC+05:30
-            #"(?<!\d)([+-]\d{2}:\d{2})(?!\d)"#,              // standalone +09:00
+            #"(?<![\d:])([+-]\d{2}:\d{2})(?!\d)"#,              // standalone +09:00
         ]
         return patterns.compactMap { try? NSRegularExpression(pattern: $0, options: .caseInsensitive) }
     }()

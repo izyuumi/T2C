@@ -179,7 +179,7 @@ final class NLParser {
         }
 
         // Build prompt with context
-        let todayISO = DateUtil.toISO8601(Date(), timezone: parseTimezone)
+        let todayISO = DateUtil.toISO8601(Date(), timezone: timezone)
         var timezoneContext = "Current timezone: \(timezone.identifier)"
         if let detected = detectedTZ, detected.timezone.identifier != timezone.identifier {
             timezoneContext += "\nEvent timezone mentioned in text: \(detected.timezone.identifier) (\(detected.abbreviation))"
