@@ -98,3 +98,4 @@
 "preview.duration_indicator" = "(por defecto)";
 
 "preview.timezone.converted" = "Hora convertida de %@ a tu zona horaria local";
+"accessibility.timezone_converted_from" = "Hora convertida de %@ a tu zona horaria local";

@@ -98,3 +98,4 @@
 "preview.duration_indicator" = "(par défaut)";
 
 "preview.timezone.converted" = "Heure convertie de %@ vers votre fuseau horaire local";
+"accessibility.timezone_converted_from" = "Heure convertie de %@ vers votre fuseau horaire local";

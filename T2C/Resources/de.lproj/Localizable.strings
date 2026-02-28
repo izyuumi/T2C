@@ -98,3 +98,4 @@
 "preview.duration_indicator" = "(Standard)";
 
 "preview.timezone.converted" = "Zeit von %@ in Ihre lokale Zeitzone umgerechnet";
+"accessibility.timezone_converted_from" = "Zeit von %@ in Ihre lokale Zeitzone umgerechnet";

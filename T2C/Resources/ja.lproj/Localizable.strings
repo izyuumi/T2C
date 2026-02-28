@@ -98,3 +98,4 @@
 "preview.duration_indicator" = "（デフォルト）";
 
 "preview.timezone.converted" = "%@ からローカルタイムゾーンに時刻を変換しました";
+"accessibility.timezone_converted_from" = "%@ からローカルタイムゾーンに時刻を変換しました";

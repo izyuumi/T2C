@@ -98,3 +98,4 @@
 "preview.duration_indicator" = "（默认）";
 
 "preview.timezone.converted" = "时间已从 %@ 转换为您的本地时区";
+"accessibility.timezone_converted_from" = "时间已从 %@ 转换为您的本地时区";
