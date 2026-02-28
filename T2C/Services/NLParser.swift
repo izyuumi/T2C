@@ -200,19 +200,19 @@ final class NLParser {
         let parsed = response.content
 
         // Validate and convert to CalendarEvent
-        guard let start = DateUtil.parseISO8601(parsed.start, in: timezone) else {
+        guard let start = DateUtil.parseISO8601(parsed.start, in: parseTimezone) else {
             logger.error("parse: Failed to parse start date: \(parsed.start)")
             throw ParsingError.invalidDateFormat
         }
 
-        let end = parsed.end.flatMap { DateUtil.parseISO8601($0, in: timezone) }
+        let end = parsed.end.flatMap { DateUtil.parseISO8601($0, in: parseTimezone) }
 
         // Parse recurrence if present
         var recurrence: RecurrenceRule? = nil
         if let freqString = parsed.recurrenceFrequency {
             if let frequency = RecurrenceRule.Frequency(rawValue: freqString.lowercased()) {
                 let interval = parsed.recurrenceInterval ?? 1
-                let endDate = parsed.recurrenceEndDate.flatMap { DateUtil.parseISO8601($0, in: timezone) }
+                let endDate = parsed.recurrenceEndDate.flatMap { DateUtil.parseISO8601($0, in: parseTimezone) }
                 recurrence = RecurrenceRule(frequency: frequency, interval: interval, endDate: endDate)
                 logger.info("parse: parsed recurrence rule: frequency=\(frequency.rawValue) interval=\(interval)")
             } else {
