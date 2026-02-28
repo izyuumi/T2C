@@ -70,8 +70,8 @@ struct MainView: View {
                         withAnimation(.easeOut(duration: 0.3)) {
                             showToast = false
                         }
-                        try await Task.sleep(for: .milliseconds(300))
-                        viewModel.reset()
+                        // Do not reset the main view state here — only dismiss the toast overlay.
+                        toastTask = nil
                     } catch {
                         // Task was cancelled (e.g. by undo or a second save) — do nothing
                     }
