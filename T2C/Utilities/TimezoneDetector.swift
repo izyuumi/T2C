@@ -155,6 +155,8 @@ enum TimezoneDetector {
         let body = String(cleaned.dropFirst())
         let parts = body.split(separator: ":")
         guard let firstPart = parts.first, let hours = Int(firstPart) else { return nil }
+        // Validate hours: UTC offsets range from −12:00 to +14:00
+        guard hours >= 0, (sign == "+" ? hours <= 14 : hours <= 12) else { return nil }
         let minutes: Int
         if parts.count > 1 {
             guard let m = Int(parts[1]), m >= 0, m <= 59 else { return nil }
