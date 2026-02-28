@@ -101,7 +101,7 @@ enum TimezoneDetector {
             return result
         }
 
-        // 2. Look for timezone abbreviations (case-insensitive, whole-word)
+        // 2. Look for timezone abbreviations (whole-word, uppercase only)
         if let result = detectAbbreviation(in: text) {
             return result
         }
@@ -162,28 +162,51 @@ enum TimezoneDetector {
             .sorted { $0.count > $1.count }  // longer first to avoid prefix shadowing
             .compactMap { abbr -> (String, NSRegularExpression)? in
                 let pattern = #"(?<![A-Za-z])"# + NSRegularExpression.escapedPattern(for: abbr) + #"(?![A-Za-z])"#
-                guard let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) else { return nil }
+                guard let regex = try? NSRegularExpression(pattern: pattern) else { return nil }
                 return (abbr, regex)
             }
     }()
 
     private static func detectAbbreviation(in text: String) -> (timezone: TimeZone, abbreviation: String)? {
         let range = NSRange(text.startIndex..., in: text)
+        var earliestMatch: (abbreviation: String, range: NSRange)?
 
         for (abbr, regex) in abbreviationRegexes {
-            guard regex.firstMatch(in: text, range: range) != nil else { continue }
-            if let secondsFromGMT = abbreviationToFixedOffset[abbr],
-               let tz = TimeZone(secondsFromGMT: secondsFromGMT) {
-                logger.debug("detectAbbreviation: found '\(abbr)' → fixed UTC offset \(secondsFromGMT)")
-                return (tz, abbr.uppercased())
-            }
+            for match in regex.matches(in: text, range: range) {
+                guard let matchRange = Range(match.range, in: text) else { continue }
+                let matchedText = String(text[matchRange])
+                guard matchedText == matchedText.uppercased() else { continue }
 
-            if let ianaID = abbreviationToIANA[abbr],
-               let tz = TimeZone(identifier: ianaID) {
-                logger.debug("detectAbbreviation: found '\(abbr)' → \(ianaID)")
-                return (tz, abbr.uppercased())
+                if let currentEarliest = earliestMatch {
+                    let startsEarlier = match.range.location < currentEarliest.range.location
+                    let sameStartLonger = match.range.location == currentEarliest.range.location
+                        && match.range.length > currentEarliest.range.length
+                    if startsEarlier || sameStartLonger {
+                        earliestMatch = (abbr, match.range)
+                    }
+                } else {
+                    earliestMatch = (abbr, match.range)
+                }
             }
         }
+
+        guard let earliestMatch else {
+            return nil
+        }
+
+        let abbr = earliestMatch.abbreviation
+        if let secondsFromGMT = abbreviationToFixedOffset[abbr],
+           let tz = TimeZone(secondsFromGMT: secondsFromGMT) {
+            logger.debug("detectAbbreviation: found '\(abbr)' → fixed UTC offset \(secondsFromGMT)")
+            return (tz, abbr.uppercased())
+        }
+
+        if let ianaID = abbreviationToIANA[abbr],
+           let tz = TimeZone(identifier: ianaID) {
+            logger.debug("detectAbbreviation: found '\(abbr)' → \(ianaID)")
+            return (tz, abbr.uppercased())
+        }
+
         return nil
     }
 

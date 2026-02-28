@@ -232,7 +232,7 @@ struct MainView: View {
                 if let event = viewModel.editableEvent,
                    let label = event.detectedTimezoneLabel,
                    let detectedTZ = event.detectedTimezone,
-                   detectedTZ.identifier != TimeZone.current.identifier {
+                   detectedTZ.secondsFromGMT(for: event.start) != TimeZone.current.secondsFromGMT(for: event.start) {
                     HStack(spacing: 6) {
                         Image(systemName: "globe")
                             .font(.caption)
