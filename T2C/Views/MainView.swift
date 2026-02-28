@@ -836,6 +836,14 @@ struct MainView: View {
 
     // MARK: - Helpers
 
+    private static let toastDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.doesRelativeDateFormatting = true
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter
+    }()
+
     /// Cancels any pending toast dismissal task and animates the toast out.
     private func hideToast() {
         toastTask?.cancel()
@@ -850,11 +858,7 @@ struct MainView: View {
     /// Formats a one-line event summary for the confirmation toast.
     /// Example: "Lunch — Today at 12:00 PM"
     private func toastSummary(for event: CalendarEvent) -> String {
-        let formatter = DateFormatter()
-        formatter.doesRelativeDateFormatting = true
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .short
-        let dateText = formatter.string(from: event.start)
+        let dateText = Self.toastDateFormatter.string(from: event.start)
         return String(
             format: NSLocalizedString("toast.saved.summary", value: "%1$@ — %2$@", comment: "Confirmation toast: event title and date/time, e.g. 'Lunch — Today at 12:00 PM'. Use positional specifiers (%1$@ = title, %2$@ = date/time) to allow locale-appropriate phrase order and punctuation."),
             event.title,
