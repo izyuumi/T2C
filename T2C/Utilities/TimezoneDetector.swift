@@ -153,19 +153,24 @@ enum TimezoneDetector {
         return TimeZone(secondsFromGMT: seconds)
     }
 
+    /// Pre-compiled regexes for each abbreviation, keyed by abbreviation (longest-first order).
+    /// Built once on first access; eliminates repeated NSRegularExpression compilation per parse call.
+    private static let abbreviationRegexes: [(abbreviation: String, ianaID: String, regex: NSRegularExpression)] = {
+        abbreviationToIANA
+            .keys
+            .sorted { $0.count > $1.count }  // longer first to avoid prefix shadowing
+            .compactMap { abbr -> (String, String, NSRegularExpression)? in
+                let pattern = #"(?<![A-Za-z])"# + NSRegularExpression.escapedPattern(for: abbr) + #"(?![A-Za-z])"#
+                guard let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) else { return nil }
+                return (abbr, abbreviationToIANA[abbr]!, regex)
+            }
+    }()
+
     private static func detectAbbreviation(in text: String) -> (timezone: TimeZone, abbreviation: String)? {
-        // Priority ordered list — try longer ones first to avoid partial matches
-        let candidates = abbreviationToIANA.keys.sorted { $0.count > $1.count }
+        let range = NSRange(text.startIndex..., in: text)
 
-        for abbr in candidates {
-            // Match as whole word (not part of a larger identifier)
-            let pattern = #"(?<![A-Za-z])"# + NSRegularExpression.escapedPattern(for: abbr) + #"(?![A-Za-z])"#
-            guard let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) else { continue }
-            let range = NSRange(text.startIndex..., in: text)
+        for (abbr, ianaID, regex) in abbreviationRegexes {
             guard regex.firstMatch(in: text, range: range) != nil else { continue }
-
-            // Resolve IANA identifier
-            let ianaID = abbreviationToIANA[abbr]!
             if let tz = TimeZone(identifier: ianaID) {
                 logger.debug("detectAbbreviation: found '\(abbr)' → \(ianaID)")
                 return (tz, abbr.uppercased())
