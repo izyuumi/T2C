@@ -1,0 +1,20 @@
+name: PR Build Check
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build iOS app
+        run: |
+          xcodebuild \
+            -project T2C.xcodeproj \
+            -scheme T2C \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO \
+            build
