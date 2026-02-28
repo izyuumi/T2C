@@ -101,7 +101,7 @@ enum TimezoneDetector {
             return result
         }
 
-        // 2. Look for timezone abbreviations (whole-word, uppercase only)
+        // 2. Look for timezone abbreviations (whole-word, case-insensitive)
         if let result = detectAbbreviation(in: text) {
             return result
         }
@@ -120,21 +120,28 @@ enum TimezoneDetector {
     }()
 
     private static func detectOffset(in text: String) -> (timezone: TimeZone, abbreviation: String)? {
+        let nsRange = NSRange(text.startIndex..., in: text)
+        // Collect all matches from all patterns, then pick the earliest by location
+        var candidates: [(location: Int, fullMatch: String, offsetStr: String)] = []
         for regex in offsetRegexes {
-            let range = NSRange(text.startIndex..., in: text)
-            guard let match = regex.firstMatch(in: text, range: range) else { continue }
+            for match in regex.matches(in: text, range: nsRange) {
+                guard let fullRange = Range(match.range, in: text) else { continue }
+                let fullMatch = String(text[fullRange])
 
-            guard let fullRange = Range(match.range, in: text) else { continue }
-            let fullMatch = String(text[fullRange])
+                // Both patterns use capture group 1 for the offset value
+                guard match.numberOfRanges > 1,
+                      let offsetRange = Range(match.range(at: 1), in: text) else { continue }
+                let offsetStr = String(text[offsetRange])
 
-            // Both patterns use capture group 1 for the offset value
-            guard match.numberOfRanges > 1,
-                  let offsetRange = Range(match.range(at: 1), in: text) else { continue }
-            let offsetStr = String(text[offsetRange])
-
-            if let tz = parseOffsetString(offsetStr) {
-                logger.debug("detectOffset: found '\(fullMatch)' → secondsFromGMT=\(tz.secondsFromGMT())")
-                return (tz, fullMatch)
+                candidates.append((match.range.location, fullMatch, offsetStr))
+            }
+        }
+        // Sort by position in text so we always return the earliest match
+        candidates.sort { $0.location < $1.location }
+        for candidate in candidates {
+            if let tz = parseOffsetString(candidate.offsetStr) {
+                logger.debug("detectOffset: found '\(candidate.fullMatch)' → secondsFromGMT=\(tz.secondsFromGMT())")
+                return (tz, candidate.fullMatch)
             }
         }
         return nil
@@ -148,7 +155,13 @@ enum TimezoneDetector {
         let body = String(cleaned.dropFirst())
         let parts = body.split(separator: ":")
         guard let firstPart = parts.first, let hours = Int(firstPart) else { return nil }
-        let minutes = parts.count > 1 ? Int(parts[1]) ?? 0 : 0
+        let minutes: Int
+        if parts.count > 1 {
+            guard let m = Int(parts[1]), m >= 0, m <= 59 else { return nil }
+            minutes = m
+        } else {
+            minutes = 0
+        }
         var seconds = hours * 3600 + minutes * 60
         if sign == "-" { seconds = -seconds }
 
