@@ -186,7 +186,7 @@ enum TimezoneDetector {
             .sorted { $0.count > $1.count }  // longer first to avoid prefix shadowing
             .compactMap { abbr -> (String, NSRegularExpression)? in
                 let pattern = #"(?<![A-Za-z])"# + NSRegularExpression.escapedPattern(for: abbr) + #"(?![A-Za-z])"#
-                guard let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) else { return nil }
+                guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else { return nil }
                 return (abbr, regex)
             }
     }()
