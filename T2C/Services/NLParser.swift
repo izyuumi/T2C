@@ -39,6 +39,12 @@ struct ParsedEvent {
 
     @Guide(description: "End date for recurrence in ISO-8601 format (optional)")
     let recurrenceEndDate: String?
+
+    @Guide(description: "Comma-separated days of the week for weekly recurrence (e.g., 'monday', 'monday,wednesday,friday'). Only populate for weekly recurrence when specific days are mentioned (optional)")
+    let recurrenceDaysOfWeek: String?
+
+    @Guide(description: "Number of times the event should repeat (e.g., 10 means 10 occurrences). Use when the user says something like '10 times' or 'for 5 weeks'. Takes priority over recurrenceEndDate (optional)")
+    let recurrenceCount: Int?
 }
 
 // MARK: - Parser
@@ -47,6 +53,7 @@ struct ParsedEvent {
 final class NLParser {
 
     private let session: LanguageModelSession
+    private let recurrenceDetector = RecurrenceDetector()
 
     init() {
         // Create session with system prompt for calendar parsing (multi-language)
@@ -117,6 +124,10 @@ final class NLParser {
             - Map to recurrenceFrequency: "daily", "weekly", "monthly", or "yearly"
             - If interval specified (e.g., "every 2 weeks", "隔週"), set recurrenceInterval accordingly
             - If end date mentioned, set recurrenceEndDate
+            - If occurrence count mentioned (e.g., "10 times", "5回"), set recurrenceCount instead of recurrenceEndDate
+            - For weekly recurrence, if specific days are mentioned (e.g., "every Monday", "毎週月曜日"), set recurrenceDaysOfWeek as comma-separated lowercase day names (sunday/monday/tuesday/wednesday/thursday/friday/saturday)
+            - "Every weekday" → recurrenceDaysOfWeek: "monday,tuesday,wednesday,thursday,friday"
+            - "Every weekend" → recurrenceDaysOfWeek: "saturday,sunday"
             - If no recurrence pattern found, leave all recurrence fields empty
 
             Distribute information appropriately: don't dump everything into title, and don't leave out details.
@@ -129,7 +140,13 @@ final class NLParser {
             Output: {"title": "Lunch with Alex", "start": "2025-12-09T13:00:00+09:00", "location": "Shibuya"}
 
             Input: "Team standup every Monday 9am until March"
-            Output: {"title": "Team standup", "start": "2025-12-02T09:00:00+09:00", "recurrenceFrequency": "weekly", "recurrenceInterval": 1, "recurrenceEndDate": "2026-03-31T23:59:59+09:00"}
+            Output: {"title": "Team standup", "start": "2025-12-02T09:00:00+09:00", "recurrenceFrequency": "weekly", "recurrenceInterval": 1, "recurrenceDaysOfWeek": "monday", "recurrenceEndDate": "2026-03-31T23:59:59+09:00"}
+
+            Input: "Gym every weekday 7am for 30 times"
+            Output: {"title": "Gym", "start": "2025-12-02T07:00:00+09:00", "recurrenceFrequency": "weekly", "recurrenceInterval": 1, "recurrenceDaysOfWeek": "monday,tuesday,wednesday,thursday,friday", "recurrenceCount": 30}
+
+            Input: "Piano lesson every other Tuesday 4pm"
+            Output: {"title": "Piano lesson", "start": "2025-12-03T16:00:00+09:00", "recurrenceFrequency": "weekly", "recurrenceInterval": 2, "recurrenceDaysOfWeek": "tuesday"}
 
             Japanese (日本語):
             Input: "明日 14時 ランチ @渋谷"
@@ -200,10 +217,44 @@ final class NLParser {
             if let frequency = RecurrenceRule.Frequency(rawValue: freqString.lowercased()) {
                 let interval = parsed.recurrenceInterval ?? 1
                 let endDate = parsed.recurrenceEndDate.flatMap { DateUtil.parseISO8601($0, in: timezone) }
-                recurrence = RecurrenceRule(frequency: frequency, interval: interval, endDate: endDate)
-                logger.info("parse: parsed recurrence rule: frequency=\(frequency.rawValue) interval=\(interval)")
+                let endCount = parsed.recurrenceCount
+
+                // Parse days of week (for weekly recurrence with specific days)
+                var daysOfWeek: [RecurrenceRule.DayOfWeek]? = nil
+                if frequency == .weekly, let daysString = parsed.recurrenceDaysOfWeek {
+                    let parsed = daysString
+                        .split(separator: ",")
+                        .compactMap { RecurrenceRule.DayOfWeek(from: String($0)) }
+                    if !parsed.isEmpty {
+                        daysOfWeek = parsed
+                    }
+                }
+
+                recurrence = RecurrenceRule(
+                    frequency: frequency,
+                    interval: interval,
+                    endDate: endDate,
+                    endCount: endCount,
+                    daysOfWeek: daysOfWeek
+                )
+                logger.info("parse: LLM recurrence: \(frequency.rawValue)/\(interval), days=\(String(describing: daysOfWeek?.map(\.rawValue)))")
             } else {
                 logger.warning("parse: invalid recurrence frequency '\(freqString)', ignoring recurrence")
+            }
+        }
+
+        // Smart fallback: if LLM missed recurrence, use RegEx-based RecurrenceDetector
+        if recurrence == nil {
+            if let detected = recurrenceDetector.detect(in: text) {
+                recurrence = detected
+                logger.info("parse: RecurrenceDetector fallback detected \(detected.frequency.rawValue)/\(detected.interval)")
+            }
+        } else if recurrence?.frequency == .weekly && recurrence?.daysOfWeek == nil {
+            // LLM detected weekly recurrence but missed the specific day(s) — enhance with detector
+            if let detected = recurrenceDetector.detect(in: text),
+               let days = detected.daysOfWeek {
+                recurrence?.daysOfWeek = days
+                logger.info("parse: enhanced LLM weekly recurrence with detector days=\(days.map(\.rawValue))")
             }
         }
 

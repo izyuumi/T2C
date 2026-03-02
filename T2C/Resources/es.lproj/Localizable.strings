@@ -45,6 +45,29 @@
 "recurrence.year" = "año";
 "recurrence.years" = "años";
 "recurrence.until" = "hasta";
+"preview.recurrence.add" = "Añadir repetición";
+"preview.recurrence.add.hint" = "Hacer este un evento recurrente";
+"preview.recurrence.edit" = "Editar repetición";
+"preview.recurrence.remove" = "Eliminar repetición";
+"recurrence.editor.title" = "Repetición";
+"recurrence.editor.frequency" = "Frecuencia";
+"recurrence.editor.every" = "Cada";
+"recurrence.editor.has_end" = "Fin de repetición";
+"recurrence.editor.repeat_on" = "Repetir el";
+"recurrence.editor.end_repeat" = "Fin";
+"recurrence.editor.end_never" = "Nunca";
+"recurrence.editor.end_on_date" = "En fecha";
+"recurrence.editor.end_after_count" = "Después de";
+"recurrence.editor.end_after" = "Después de";
+"recurrence.editor.occurrences" = "veces";
+"recurrence.editor.end_date" = "Fecha de fin";
+"recurrence.editor.remove" = "Eliminar repetición";
+"recurrence.editor.cancel" = "Cancelar";
+"recurrence.editor.done" = "Listo";
+"recurrence.daily" = "Diario";
+"recurrence.weekly" = "Semanal";
+"recurrence.monthly" = "Mensual";
+"recurrence.yearly" = "Anual";
 
 // MARK: - Saving
 "saving.loading" = "Guardando en el Calendario...";

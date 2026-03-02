@@ -17,9 +17,30 @@ struct RecurrenceRule: Codable, Equatable {
         case daily, weekly, monthly, yearly
     }
 
+    /// Day of the week (raw value matches EKWeekday: sunday=1 … saturday=7)
+    enum DayOfWeek: Int, Codable, CaseIterable {
+        case sunday = 1, monday, tuesday, wednesday, thursday, friday, saturday
+
+        /// Initialise from a plain English string (case-insensitive)
+        init?(from string: String) {
+            switch string.lowercased().trimmingCharacters(in: .whitespaces) {
+            case "sunday":    self = .sunday
+            case "monday":    self = .monday
+            case "tuesday":   self = .tuesday
+            case "wednesday": self = .wednesday
+            case "thursday":  self = .thursday
+            case "friday":    self = .friday
+            case "saturday":  self = .saturday
+            default: return nil
+            }
+        }
+    }
+
     var frequency: Frequency
-    var interval: Int = 1  // every 1 week, every 2 days, etc.
-    var endDate: Date?     // optional end date for recurrence
+    var interval: Int = 1          // every 1 week, every 2 days, etc.
+    var endDate: Date?             // optional end date for recurrence
+    var endCount: Int?             // optional: end after N occurrences (alternative to endDate)
+    var daysOfWeek: [DayOfWeek]?   // specific days for weekly recurrence (e.g. [.monday, .wednesday])
 }
 
 /// Represents a calendar event with required and optional fields
@@ -104,32 +125,59 @@ final class CalendarService {
 
         // Apply recurrence rule if provided
         if let recurrence = event.recurrence {
-            let frequency: EKRecurrenceFrequency
+            let ekFrequency: EKRecurrenceFrequency
             switch recurrence.frequency {
-            case .daily:
-                frequency = .daily
-            case .weekly:
-                frequency = .weekly
-            case .monthly:
-                frequency = .monthly
-            case .yearly:
-                frequency = .yearly
+            case .daily:   ekFrequency = .daily
+            case .weekly:  ekFrequency = .weekly
+            case .monthly: ekFrequency = .monthly
+            case .yearly:  ekFrequency = .yearly
             }
 
+            // Build end condition: prefer count over date
             let recurrenceEnd: EKRecurrenceEnd?
-            if let endDate = recurrence.endDate {
+            if let count = recurrence.endCount, count > 0 {
+                recurrenceEnd = EKRecurrenceEnd(occurrenceCount: count)
+            } else if let endDate = recurrence.endDate {
                 recurrenceEnd = EKRecurrenceEnd(end: endDate)
             } else {
                 recurrenceEnd = nil
             }
 
-            let rule = EKRecurrenceRule(
-                recurrenceWith: frequency,
-                interval: recurrence.interval,
-                end: recurrenceEnd
-            )
+            // Build days-of-week for weekly recurrence
+            let ekDaysOfWeek: [EKRecurrenceDayOfWeek]?
+            if recurrence.frequency == .weekly,
+               let days = recurrence.daysOfWeek, !days.isEmpty {
+                ekDaysOfWeek = days.compactMap { day -> EKRecurrenceDayOfWeek? in
+                    guard let weekday = EKWeekday(rawValue: day.rawValue) else { return nil }
+                    return EKRecurrenceDayOfWeek(weekday)
+                }
+            } else {
+                ekDaysOfWeek = nil
+            }
+
+            let rule: EKRecurrenceRule
+            if let daysOfWeek = ekDaysOfWeek {
+                rule = EKRecurrenceRule(
+                    recurrenceWith: ekFrequency,
+                    interval: recurrence.interval,
+                    daysOfTheWeek: daysOfWeek,
+                    daysOfTheMonth: nil,
+                    monthsOfTheYear: nil,
+                    weeksOfTheYear: nil,
+                    daysOfTheYear: nil,
+                    setPositions: nil,
+                    end: recurrenceEnd
+                )
+            } else {
+                rule = EKRecurrenceRule(
+                    recurrenceWith: ekFrequency,
+                    interval: recurrence.interval,
+                    end: recurrenceEnd
+                )
+            }
+
             ekEvent.recurrenceRules = [rule]
-            logger.info("add: applied recurrence rule frequency=\(recurrence.frequency.rawValue), interval=\(recurrence.interval), hasEndDate=\(recurrence.endDate != nil)")
+            logger.info("add: applied recurrence rule frequency=\(recurrence.frequency.rawValue), interval=\(recurrence.interval), hasEndDate=\(recurrence.endDate != nil), endCount=\(String(describing: recurrence.endCount)), daysOfWeek=\(String(describing: recurrence.daysOfWeek?.map(\.rawValue)))")
         }
 
         do {
