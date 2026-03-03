@@ -45,6 +45,29 @@
 "recurrence.year" = "년";
 "recurrence.years" = "년";
 "recurrence.until" = "까지";
+"preview.recurrence.add" = "반복 추가";
+"preview.recurrence.add.hint" = "반복 일정으로 설정";
+"preview.recurrence.edit" = "반복 편집";
+"preview.recurrence.remove" = "반복 삭제";
+"recurrence.editor.title" = "반복";
+"recurrence.editor.frequency" = "빈도";
+"recurrence.editor.every" = "매";
+"recurrence.editor.has_end" = "종료 반복";
+"recurrence.editor.repeat_on" = "반복 요일";
+"recurrence.editor.end_repeat" = "종료";
+"recurrence.editor.end_never" = "없음";
+"recurrence.editor.end_on_date" = "날짜에 종료";
+"recurrence.editor.end_after_count" = "횟수 후 종료";
+"recurrence.editor.end_after" = "후";
+"recurrence.editor.occurrences" = "번";
+"recurrence.editor.end_date" = "종료 날짜";
+"recurrence.editor.remove" = "반복 삭제";
+"recurrence.editor.cancel" = "취소";
+"recurrence.editor.done" = "완료";
+"recurrence.daily" = "매일";
+"recurrence.weekly" = "매주";
+"recurrence.monthly" = "매월";
+"recurrence.yearly" = "매년";
 
 // MARK: - Saving
 "saving.loading" = "캘린더에 저장 중...";

@@ -45,6 +45,29 @@
 "recurrence.year" = "年";
 "recurrence.years" = "年";
 "recurrence.until" = "直到";
+"preview.recurrence.add" = "添加重复";
+"preview.recurrence.add.hint" = "设为重复活动";
+"preview.recurrence.edit" = "编辑重复";
+"preview.recurrence.remove" = "删除重复";
+"recurrence.editor.title" = "重复";
+"recurrence.editor.frequency" = "频率";
+"recurrence.editor.every" = "每";
+"recurrence.editor.has_end" = "结束重复";
+"recurrence.editor.repeat_on" = "重复日";
+"recurrence.editor.end_repeat" = "结束";
+"recurrence.editor.end_never" = "从不";
+"recurrence.editor.end_on_date" = "按日期";
+"recurrence.editor.end_after_count" = "按次数";
+"recurrence.editor.end_after" = "在";
+"recurrence.editor.occurrences" = "次后";
+"recurrence.editor.end_date" = "结束日期";
+"recurrence.editor.remove" = "删除重复";
+"recurrence.editor.cancel" = "取消";
+"recurrence.editor.done" = "完成";
+"recurrence.daily" = "每天";
+"recurrence.weekly" = "每周";
+"recurrence.monthly" = "每月";
+"recurrence.yearly" = "每年";
 
 // MARK: - Saving
 "saving.loading" = "正在保存到日历...";

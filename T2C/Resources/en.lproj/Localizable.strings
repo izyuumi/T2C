@@ -56,6 +56,13 @@
 "recurrence.editor.frequency" = "Frequency";
 "recurrence.editor.every" = "Every";
 "recurrence.editor.has_end" = "End Repeat";
+"recurrence.editor.repeat_on" = "Repeat On";
+"recurrence.editor.end_repeat" = "End Repeat";
+"recurrence.editor.end_never" = "Never";
+"recurrence.editor.end_on_date" = "On Date";
+"recurrence.editor.end_after_count" = "After";
+"recurrence.editor.end_after" = "After";
+"recurrence.editor.occurrences" = "occurrences";
 "recurrence.editor.end_date" = "End Date";
 "recurrence.editor.remove" = "Remove Repeat";
 "recurrence.editor.cancel" = "Cancel";

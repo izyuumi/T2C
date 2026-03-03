@@ -45,6 +45,29 @@
 "recurrence.year" = "Jahr";
 "recurrence.years" = "Jahre";
 "recurrence.until" = "bis";
+"preview.recurrence.add" = "Wiederholung hinzufügen";
+"preview.recurrence.add.hint" = "Dies zu einem wiederkehrenden Ereignis machen";
+"preview.recurrence.edit" = "Wiederholung bearbeiten";
+"preview.recurrence.remove" = "Wiederholung entfernen";
+"recurrence.editor.title" = "Wiederholung";
+"recurrence.editor.frequency" = "Häufigkeit";
+"recurrence.editor.every" = "Alle";
+"recurrence.editor.has_end" = "Wiederholung beenden";
+"recurrence.editor.repeat_on" = "Wiederholen am";
+"recurrence.editor.end_repeat" = "Ende";
+"recurrence.editor.end_never" = "Nie";
+"recurrence.editor.end_on_date" = "An Datum";
+"recurrence.editor.end_after_count" = "Nach Anzahl";
+"recurrence.editor.end_after" = "Nach";
+"recurrence.editor.occurrences" = "Mal";
+"recurrence.editor.end_date" = "Enddatum";
+"recurrence.editor.remove" = "Wiederholung entfernen";
+"recurrence.editor.cancel" = "Abbrechen";
+"recurrence.editor.done" = "Fertig";
+"recurrence.daily" = "Täglich";
+"recurrence.weekly" = "Wöchentlich";
+"recurrence.monthly" = "Monatlich";
+"recurrence.yearly" = "Jährlich";
 
 // MARK: - Saving
 "saving.loading" = "Wird im Kalender gespeichert...";

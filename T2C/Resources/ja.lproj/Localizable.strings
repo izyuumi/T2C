@@ -45,6 +45,29 @@
 "recurrence.year" = "年";
 "recurrence.years" = "年";
 "recurrence.until" = "まで";
+"preview.recurrence.add" = "繰り返しを追加";
+"preview.recurrence.add.hint" = "繰り返しイベントにする";
+"preview.recurrence.edit" = "繰り返しを編集";
+"preview.recurrence.remove" = "繰り返しを削除";
+"recurrence.editor.title" = "繰り返し";
+"recurrence.editor.frequency" = "頻度";
+"recurrence.editor.every" = "毎";
+"recurrence.editor.has_end" = "終了日";
+"recurrence.editor.repeat_on" = "繰り返す曜日";
+"recurrence.editor.end_repeat" = "終了";
+"recurrence.editor.end_never" = "なし";
+"recurrence.editor.end_on_date" = "日付で終了";
+"recurrence.editor.end_after_count" = "回数で終了";
+"recurrence.editor.end_after" = "後";
+"recurrence.editor.occurrences" = "回";
+"recurrence.editor.end_date" = "終了日";
+"recurrence.editor.remove" = "繰り返しを削除";
+"recurrence.editor.cancel" = "キャンセル";
+"recurrence.editor.done" = "完了";
+"recurrence.daily" = "毎日";
+"recurrence.weekly" = "毎週";
+"recurrence.monthly" = "毎月";
+"recurrence.yearly" = "毎年";
 
 // MARK: - Saving
 "saving.loading" = "カレンダーに保存中...";
