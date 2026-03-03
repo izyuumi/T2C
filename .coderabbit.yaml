@@ -1,0 +1,9 @@
+# CodeRabbit configuration
+# https://docs.coderabbit.ai/configure/
+
+reviews:
+  # Enable automatic code reviews on pull requests
+  auto_review:
+    enabled: true
+  # Keep review status comments visible
+  review_status: true
