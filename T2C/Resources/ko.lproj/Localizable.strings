@@ -96,3 +96,5 @@
 "settings.haptic_feedback" = "햅틱 피드백";
 "settings.version" = "버전";
 "preview.duration_indicator" = "(기본값)";
+
+"toast.saved.summary" = "%1$@ — %2$@";

@@ -96,3 +96,5 @@
 "settings.haptic_feedback" = "Retour haptique";
 "settings.version" = "Version";
 "preview.duration_indicator" = "(par défaut)";
+
+"toast.saved.summary" = "%1$@ — %2$@";

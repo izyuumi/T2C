@@ -96,3 +96,5 @@
 "settings.haptic_feedback" = "触觉反馈";
 "settings.version" = "版本";
 "preview.duration_indicator" = "（默认）";
+
+"toast.saved.summary" = "%1$@：%2$@";
