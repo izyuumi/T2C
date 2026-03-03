@@ -43,7 +43,7 @@ struct ParsedEvent {
     @Guide(description: "Comma-separated days of the week for weekly recurrence (e.g., 'monday', 'monday,wednesday,friday'). Only populate for weekly recurrence when specific days are mentioned (optional)")
     let recurrenceDaysOfWeek: String?
 
-    @Guide(description: "Number of times the event should repeat (e.g., 10 means 10 occurrences). Use when the user says something like '10 times' or 'for 5 weeks'. Takes priority over recurrenceEndDate (optional)")
+    @Guide(description: "Number of times the event should repeat (e.g., 10 means 10 occurrences). Only use for explicit occurrence counts such as '10 times' or '5回'. Do not use for calendar duration spans such as 'for 5 weeks'; those should be treated as spans and reflected via recurrenceEndDate instead. Takes priority over recurrenceEndDate when an explicit count is given (optional)")
     let recurrenceCount: Int?
 }
 
@@ -124,7 +124,8 @@ final class NLParser {
             - Map to recurrenceFrequency: "daily", "weekly", "monthly", or "yearly"
             - If interval specified (e.g., "every 2 weeks", "隔週"), set recurrenceInterval accordingly
             - If end date mentioned, set recurrenceEndDate
-            - If occurrence count mentioned (e.g., "10 times", "5回"), set recurrenceCount instead of recurrenceEndDate
+            - If an explicit occurrence count is mentioned (e.g., "10 times", "5回"), set recurrenceCount instead of recurrenceEndDate
+            - If a calendar duration span is mentioned (e.g., "for 5 weeks", "for 3 months"), treat it as a duration span, not an occurrence count; do not set recurrenceCount from that phrase
             - For weekly recurrence, if specific days are mentioned (e.g., "every Monday", "毎週月曜日"), set recurrenceDaysOfWeek as comma-separated lowercase day names (sunday/monday/tuesday/wednesday/thursday/friday/saturday)
             - "Every weekday" → recurrenceDaysOfWeek: "monday,tuesday,wednesday,thursday,friday"
             - "Every weekend" → recurrenceDaysOfWeek: "saturday,sunday"

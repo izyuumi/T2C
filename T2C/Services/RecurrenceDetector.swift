@@ -67,13 +67,13 @@ final class RecurrenceDetector {
     // swiftlint:disable line_length
     private let dayOfWeekPatterns: [DayPattern] = [
         // English – single days
-        .init(pattern: #"(?i)\bevery\s+monday\b"#,    days: [.monday]),
-        .init(pattern: #"(?i)\bevery\s+tuesday\b"#,   days: [.tuesday]),
-        .init(pattern: #"(?i)\bevery\s+wednesday\b"#, days: [.wednesday]),
-        .init(pattern: #"(?i)\bevery\s+thursday\b"#,  days: [.thursday]),
-        .init(pattern: #"(?i)\bevery\s+friday\b"#,    days: [.friday]),
-        .init(pattern: #"(?i)\bevery\s+saturday\b"#,  days: [.saturday]),
-        .init(pattern: #"(?i)\bevery\s+sunday\b"#,    days: [.sunday]),
+        .init(pattern: #"(?i)\bevery(?:\s+other)?\s+monday\b"#,    days: [.monday]),
+        .init(pattern: #"(?i)\bevery(?:\s+other)?\s+tuesday\b"#,   days: [.tuesday]),
+        .init(pattern: #"(?i)\bevery(?:\s+other)?\s+wednesday\b"#, days: [.wednesday]),
+        .init(pattern: #"(?i)\bevery(?:\s+other)?\s+thursday\b"#,  days: [.thursday]),
+        .init(pattern: #"(?i)\bevery(?:\s+other)?\s+friday\b"#,    days: [.friday]),
+        .init(pattern: #"(?i)\bevery(?:\s+other)?\s+saturday\b"#,  days: [.saturday]),
+        .init(pattern: #"(?i)\bevery(?:\s+other)?\s+sunday\b"#,    days: [.sunday]),
         // English – groups
         .init(pattern: #"(?i)\bevery\s+weekday\b"#,   days: [.monday, .tuesday, .wednesday, .thursday, .friday]),
         .init(pattern: #"(?i)\bevery\s+weekend\b"#,   days: [.saturday, .sunday]),
