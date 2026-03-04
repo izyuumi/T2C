@@ -228,6 +228,31 @@ struct MainView: View {
                 Divider()
                     .padding(.horizontal, 20)
 
+                // Detected timezone conversion banner
+                if let event = viewModel.editableEvent,
+                   let label = event.detectedTimezoneLabel,
+                   let detectedTZ = event.detectedTimezone,
+                   detectedTZ.secondsFromGMT(for: event.start) != TimeZone.current.secondsFromGMT(for: event.start) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "globe")
+                            .font(.caption)
+                            .foregroundStyle(.blue)
+                        Text(String(
+                            format: NSLocalizedString("preview.timezone.converted", value: "Time converted from %@ to your local timezone", comment: "Timezone conversion notice"),
+                            label
+                        ))
+                        .font(.caption)
+                        .foregroundStyle(.blue)
+                    }
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .background(Color.blue.opacity(0.08))
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .padding(.horizontal, 20)
+                    .padding(.top, 8)
+                    .accessibilityLabel(String(format: NSLocalizedString("accessibility.timezone_converted_from", value: "Time converted from %@ to your local timezone", comment: "Accessibility label for timezone conversion result, %@ is the detected timezone label"), label))
+                }
+
                 // Date & Time Section
                 VStack(spacing: 0) {
                     // Start

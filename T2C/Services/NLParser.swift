@@ -171,14 +171,27 @@ final class NLParser {
     func parse(_ text: String, tz timezone: TimeZone = .current) async throws -> CalendarEvent {
         logger.info("parse: input='\(text)' timezone=\(timezone.identifier)")
 
+        // Detect timezone reference in the input text
+        let detectedTZ = TimezoneDetector.detect(in: text)
+        let parseTimezone = detectedTZ?.timezone ?? timezone
+        if let detected = detectedTZ {
+            logger.info("parse: detected timezone '\(detected.abbreviation)' → \(detected.timezone.identifier)")
+        }
+
         // Build prompt with context
         let todayISO = DateUtil.toISO8601(Date(), timezone: timezone)
+        var timezoneContext = "Current timezone: \(timezone.identifier)"
+        if let detected = detectedTZ, detected.timezone.identifier != timezone.identifier {
+            timezoneContext += "\nEvent timezone mentioned in text: \(detected.timezone.identifier) (\(detected.abbreviation))"
+            timezoneContext += "\nIMPORTANT: The time in the text is in \(detected.timezone.identifier). Output the start/end dates in \(detected.timezone.identifier) timezone offset, so the app can convert to the user's local time."
+        }
+
         let prompt = """
         Parse this natural language text into a calendar event:
         "\(text)"
 
         Context:
-        - Current timezone: \(timezone.identifier)
+        - \(timezoneContext)
         - Today's date/time: \(todayISO)
         """
 
@@ -187,19 +200,19 @@ final class NLParser {
         let parsed = response.content
 
         // Validate and convert to CalendarEvent
-        guard let start = DateUtil.parseISO8601(parsed.start, in: timezone) else {
+        guard let start = DateUtil.parseISO8601(parsed.start, in: parseTimezone) else {
             logger.error("parse: Failed to parse start date: \(parsed.start)")
             throw ParsingError.invalidDateFormat
         }
 
-        let end = parsed.end.flatMap { DateUtil.parseISO8601($0, in: timezone) }
+        let end = parsed.end.flatMap { DateUtil.parseISO8601($0, in: parseTimezone) }
 
         // Parse recurrence if present
         var recurrence: RecurrenceRule? = nil
         if let freqString = parsed.recurrenceFrequency {
             if let frequency = RecurrenceRule.Frequency(rawValue: freqString.lowercased()) {
                 let interval = parsed.recurrenceInterval ?? 1
-                let endDate = parsed.recurrenceEndDate.flatMap { DateUtil.parseISO8601($0, in: timezone) }
+                let endDate = parsed.recurrenceEndDate.flatMap { DateUtil.parseISO8601($0, in: parseTimezone) }
                 recurrence = RecurrenceRule(frequency: frequency, interval: interval, endDate: endDate)
                 logger.info("parse: parsed recurrence rule: frequency=\(frequency.rawValue) interval=\(interval)")
             } else {
@@ -207,7 +220,7 @@ final class NLParser {
             }
         }
 
-        let event = CalendarEvent(
+        var event = CalendarEvent(
             title: parsed.title,
             start: start,
             end: end,
@@ -216,6 +229,13 @@ final class NLParser {
             recurrence: recurrence,
             selectedCalendarId: nil
         )
+
+        // Attach detected timezone metadata if a timezone was found in the text
+        if let detected = detectedTZ {
+            event.detectedTimezoneIdentifier = detected.timezone.identifier
+            event.detectedTimezoneLabel = detected.abbreviation
+            logger.info("parse: attaching detected timezone '\(detected.abbreviation)' (\(detected.timezone.identifier)) to event")
+        }
 
         logger.info("parse: successfully parsed event: title=\(parsed.title) start=\(start)")
 
