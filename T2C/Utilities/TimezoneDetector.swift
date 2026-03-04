@@ -26,7 +26,7 @@ enum TimezoneDetector {
         "PDT": -7 * 3600,
         "MST": -7 * 3600,
         "MDT": -6 * 3600,
-        "CST": -6 * 3600,
+        "CST": -6 * 3600,  // Central Standard Time (UTC-6) — China Standard Time (UTC+8) omitted to avoid conflict
         "CDT": -5 * 3600,
         "EST": -5 * 3600,
         "EDT": -4 * 3600,
@@ -158,6 +158,7 @@ enum TimezoneDetector {
         guard let sign = cleaned.first, sign == "+" || sign == "-" else { return nil }
 
         let body = String(cleaned.dropFirst())
+        guard !body.isEmpty else { return nil }
         let parts = body.split(separator: ":")
         guard let firstPart = parts.first, let hours = Int(firstPart) else { return nil }
         // Validate hours: UTC offsets range from −12:00 to +14:00
@@ -186,7 +187,7 @@ enum TimezoneDetector {
             .sorted { $0.count > $1.count }  // longer first to avoid prefix shadowing
             .compactMap { abbr -> (String, NSRegularExpression)? in
                 let pattern = #"(?<![A-Za-z0-9_])"# + NSRegularExpression.escapedPattern(for: abbr) + #"(?![A-Za-z0-9_])"#
-                guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else { return nil }
+                guard let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) else { return nil }
                 return (abbr, regex)
             }
     }()
