@@ -519,6 +519,20 @@ final class CalendarServiceTests: XCTestCase {
         XCTAssertEqual(rule.sanitizedDaysOfWeek, [2, 5])
     }
 
+    func testRecurrenceRuleSanitizedDaysOfWeekIgnoredForNonWeeklyRules() {
+        // Given: Invalid weekday constraints attached to a non-weekly rule
+        let rule = RecurrenceRule(
+            frequency: .monthly,
+            interval: 1,
+            endDate: nil,
+            count: nil,
+            daysOfWeek: [2, 2, 5]
+        )
+
+        // Then: Weekday constraints should not leak into unsupported recurrence types
+        XCTAssertNil(rule.sanitizedDaysOfWeek)
+    }
+
     func testComplexCalendarEventWithRecurrence() {
         // Given: Complex event with recurrence
         let recurrence = RecurrenceRule(

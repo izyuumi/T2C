@@ -33,7 +33,14 @@ struct RecurrenceRule: Codable, Equatable {
     }
 
     var sanitizedDaysOfWeek: [Int]? {
-        let validDays = (daysOfWeek ?? []).filter { (1...7).contains($0) }
+        guard frequency == .weekly else { return nil }
+
+        var seenDays = Set<Int>()
+        let validDays = (daysOfWeek ?? []).filter { day in
+            guard (1...7).contains(day), !seenDays.contains(day) else { return false }
+            seenDays.insert(day)
+            return true
+        }
         return validDays.isEmpty ? nil : validDays
     }
 }

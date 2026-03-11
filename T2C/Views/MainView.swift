@@ -816,36 +816,37 @@ struct MainView: View {
     private func recurrenceDescription(_ recurrence: RecurrenceRule) -> String {
         let every = String(localized: "recurrence.every")
         var desc = every
+        let interval = recurrence.sanitizedInterval
 
-        if recurrence.interval > 1 {
-            desc += " \(recurrence.interval)"
+        if interval > 1 {
+            desc += " \(interval)"
         }
 
         // Show specific day names when daysOfWeek is set for weekly recurrence
-        if let days = recurrence.daysOfWeek, !days.isEmpty, recurrence.frequency == .weekly {
+        if let days = recurrence.sanitizedDaysOfWeek, !days.isEmpty {
             let dayNames = days.compactMap { weekdayName($0) }
             if !dayNames.isEmpty {
-                if recurrence.interval > 1 {
+                if interval > 1 {
                     desc += " " + String(localized: "recurrence.weeks")
                 }
                 desc += " " + dayNames.joined(separator: ", ")
             } else {
-                desc += " " + (recurrence.interval > 1 ? String(localized: "recurrence.weeks") : String(localized: "recurrence.week"))
+                desc += " " + (interval > 1 ? String(localized: "recurrence.weeks") : String(localized: "recurrence.week"))
             }
         } else {
             switch recurrence.frequency {
             case .daily:
-                desc += " " + (recurrence.interval > 1 ? String(localized: "recurrence.days") : String(localized: "recurrence.day"))
+                desc += " " + (interval > 1 ? String(localized: "recurrence.days") : String(localized: "recurrence.day"))
             case .weekly:
-                desc += " " + (recurrence.interval > 1 ? String(localized: "recurrence.weeks") : String(localized: "recurrence.week"))
+                desc += " " + (interval > 1 ? String(localized: "recurrence.weeks") : String(localized: "recurrence.week"))
             case .monthly:
-                desc += " " + (recurrence.interval > 1 ? String(localized: "recurrence.months") : String(localized: "recurrence.month"))
+                desc += " " + (interval > 1 ? String(localized: "recurrence.months") : String(localized: "recurrence.month"))
             case .yearly:
-                desc += " " + (recurrence.interval > 1 ? String(localized: "recurrence.years") : String(localized: "recurrence.year"))
+                desc += " " + (interval > 1 ? String(localized: "recurrence.years") : String(localized: "recurrence.year"))
             }
         }
 
-        if let count = recurrence.count {
+        if let count = recurrence.sanitizedCount {
             desc += ", \(count)×"
         } else if let endDate = recurrence.endDate {
             let formatter = DateFormatter()
