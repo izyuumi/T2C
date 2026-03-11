@@ -19,9 +19,9 @@ struct RecurrenceRule: Codable, Equatable {
 
     var frequency: Frequency
     var interval: Int = 1      // every 1 week, every 2 days, etc.
-    var endDate: Date?         // optional end date for recurrence
-    var count: Int?            // optional occurrence count ("10 times")
-    var daysOfWeek: [Int]?     // EKWeekday values: 1=Sun,2=Mon,3=Tue,4=Wed,5=Thu,6=Fri,7=Sat
+    var endDate: Date? = nil   // optional end date for recurrence
+    var count: Int? = nil      // optional occurrence count ("10 times")
+    var daysOfWeek: [Int]? = nil  // EKWeekday values: 1=Sun,2=Mon,3=Tue,4=Wed,5=Thu,6=Fri,7=Sat
 }
 
 /// Represents a calendar event with required and optional fields
@@ -127,8 +127,9 @@ final class CalendarService {
                 recurrenceEnd = nil
             }
 
-            let ekDaysOfWeek: [EKRecurrenceDayOfWeek]? = recurrence.daysOfWeek.map { days in
-                days.map { EKRecurrenceDayOfWeek(EKWeekday(rawValue: $0)!) }
+            let ekDaysOfWeek: [EKRecurrenceDayOfWeek]? = recurrence.daysOfWeek.flatMap { days -> [EKRecurrenceDayOfWeek]? in
+                let mapped = days.compactMap { EKWeekday(rawValue: $0).map { EKRecurrenceDayOfWeek($0) } }
+                return mapped.isEmpty ? nil : mapped
             }
 
             let rule = EKRecurrenceRule(
