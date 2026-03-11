@@ -816,29 +816,53 @@ struct MainView: View {
     private func recurrenceDescription(_ recurrence: RecurrenceRule) -> String {
         let every = String(localized: "recurrence.every")
         var desc = every
+        let interval = recurrence.sanitizedInterval
 
-        if recurrence.interval > 1 {
-            desc += " \(recurrence.interval)"
+        if interval > 1 {
+            desc += " \(interval)"
         }
 
-        switch recurrence.frequency {
-        case .daily:
-            desc += " " + (recurrence.interval > 1 ? String(localized: "recurrence.days") : String(localized: "recurrence.day"))
-        case .weekly:
-            desc += " " + (recurrence.interval > 1 ? String(localized: "recurrence.weeks") : String(localized: "recurrence.week"))
-        case .monthly:
-            desc += " " + (recurrence.interval > 1 ? String(localized: "recurrence.months") : String(localized: "recurrence.month"))
-        case .yearly:
-            desc += " " + (recurrence.interval > 1 ? String(localized: "recurrence.years") : String(localized: "recurrence.year"))
+        // Show specific day names when daysOfWeek is set for weekly recurrence
+        if let days = recurrence.sanitizedDaysOfWeek, !days.isEmpty {
+            let dayNames = days.compactMap { weekdayName($0) }
+            if !dayNames.isEmpty {
+                if interval > 1 {
+                    desc += " " + String(localized: "recurrence.weeks")
+                }
+                desc += " " + dayNames.joined(separator: ", ")
+            } else {
+                desc += " " + (interval > 1 ? String(localized: "recurrence.weeks") : String(localized: "recurrence.week"))
+            }
+        } else {
+            switch recurrence.frequency {
+            case .daily:
+                desc += " " + (interval > 1 ? String(localized: "recurrence.days") : String(localized: "recurrence.day"))
+            case .weekly:
+                desc += " " + (interval > 1 ? String(localized: "recurrence.weeks") : String(localized: "recurrence.week"))
+            case .monthly:
+                desc += " " + (interval > 1 ? String(localized: "recurrence.months") : String(localized: "recurrence.month"))
+            case .yearly:
+                desc += " " + (interval > 1 ? String(localized: "recurrence.years") : String(localized: "recurrence.year"))
+            }
         }
 
-        if let endDate = recurrence.endDate {
+        if let count = recurrence.sanitizedCount {
+            desc += ", \(count)×"
+        } else if let endDate = recurrence.endDate {
             let formatter = DateFormatter()
             formatter.dateStyle = .medium
             desc += " \(String(localized: "recurrence.until")) \(formatter.string(from: endDate))"
         }
 
         return desc
+    }
+
+    /// Returns short weekday name for EKWeekday value (1=Sun, 2=Mon, ..., 7=Sat)
+    private func weekdayName(_ ekWeekday: Int) -> String? {
+        guard ekWeekday >= 1 && ekWeekday <= 7 else { return nil }
+        var cal = Calendar.current
+        cal.locale = Locale.current
+        return cal.shortWeekdaySymbols[ekWeekday - 1]
     }
 
     private func removeRecurrence() {

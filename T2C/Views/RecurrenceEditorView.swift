@@ -97,7 +97,7 @@ struct RecurrenceEditorView: View {
     private func loadExisting() {
         if let existing = recurrence {
             frequency = existing.frequency
-            interval = existing.interval
+            interval = max(existing.interval, 1)
             hasEndDate = existing.endDate != nil
             endDate = existing.endDate ?? Calendar.current.date(byAdding: .month, value: 3, to: eventStart) ?? eventStart
         } else {
@@ -107,10 +107,15 @@ struct RecurrenceEditorView: View {
     }
 
     private func saveRecurrence() {
+        let existingCount = hasEndDate ? nil : recurrence?.count
+        let existingDaysOfWeek = frequency == .weekly ? recurrence?.daysOfWeek : nil
+
         recurrence = RecurrenceRule(
             frequency: frequency,
             interval: interval,
-            endDate: hasEndDate ? endDate : nil
+            endDate: hasEndDate ? endDate : nil,
+            count: existingCount,
+            daysOfWeek: existingDaysOfWeek
         )
     }
 }
