@@ -18,8 +18,10 @@ struct RecurrenceRule: Codable, Equatable {
     }
 
     var frequency: Frequency
-    var interval: Int = 1  // every 1 week, every 2 days, etc.
-    var endDate: Date?     // optional end date for recurrence
+    var interval: Int = 1      // every 1 week, every 2 days, etc.
+    var endDate: Date?         // optional end date for recurrence
+    var count: Int?            // optional occurrence count ("10 times")
+    var daysOfWeek: [Int]?     // EKWeekday values: 1=Sun,2=Mon,3=Tue,4=Wed,5=Thu,6=Fri,7=Sat
 }
 
 /// Represents a calendar event with required and optional fields
@@ -117,19 +119,31 @@ final class CalendarService {
             }
 
             let recurrenceEnd: EKRecurrenceEnd?
-            if let endDate = recurrence.endDate {
+            if let count = recurrence.count {
+                recurrenceEnd = EKRecurrenceEnd(occurrenceCount: count)
+            } else if let endDate = recurrence.endDate {
                 recurrenceEnd = EKRecurrenceEnd(end: endDate)
             } else {
                 recurrenceEnd = nil
             }
 
+            let ekDaysOfWeek: [EKRecurrenceDayOfWeek]? = recurrence.daysOfWeek.map { days in
+                days.map { EKRecurrenceDayOfWeek(EKWeekday(rawValue: $0)!) }
+            }
+
             let rule = EKRecurrenceRule(
                 recurrenceWith: frequency,
                 interval: recurrence.interval,
+                daysOfTheWeek: ekDaysOfWeek,
+                daysOfTheMonth: nil,
+                monthsOfTheYear: nil,
+                weeksOfTheYear: nil,
+                daysOfTheYear: nil,
+                setPositions: nil,
                 end: recurrenceEnd
             )
             ekEvent.recurrenceRules = [rule]
-            logger.info("add: applied recurrence rule frequency=\(recurrence.frequency.rawValue), interval=\(recurrence.interval), hasEndDate=\(recurrence.endDate != nil)")
+            logger.info("add: applied recurrence rule frequency=\(recurrence.frequency.rawValue), interval=\(recurrence.interval), daysOfWeek=\(String(describing: recurrence.daysOfWeek)), count=\(String(describing: recurrence.count)), hasEndDate=\(recurrence.endDate != nil)")
         }
 
         do {
