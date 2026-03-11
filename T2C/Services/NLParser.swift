@@ -224,10 +224,13 @@ final class NLParser {
         var recurrence: RecurrenceRule? = nil
         if let freqString = parsed.recurrenceFrequency {
             if let frequency = RecurrenceRule.Frequency(rawValue: freqString.lowercased()) {
-                let interval = parsed.recurrenceInterval ?? 1
+                let interval = max(parsed.recurrenceInterval ?? 1, 1)
                 let endDate = parsed.recurrenceEndDate.flatMap { DateUtil.parseISO8601($0, in: timezone) }
-                let count = parsed.recurrenceCount
-                let daysOfWeek = parsed.recurrenceDaysOfWeek.flatMap { $0.isEmpty ? nil : $0 }
+                let count = parsed.recurrenceCount.flatMap { $0 > 0 ? $0 : nil }
+                let daysOfWeek = parsed.recurrenceDaysOfWeek.flatMap { days in
+                    let validDays = days.filter { (1...7).contains($0) }
+                    return validDays.isEmpty ? nil : validDays
+                }
                 recurrence = RecurrenceRule(frequency: frequency, interval: interval, endDate: endDate, count: count, daysOfWeek: daysOfWeek)
                 logger.info("parse: parsed recurrence rule: frequency=\(frequency.rawValue) interval=\(interval) daysOfWeek=\(String(describing: daysOfWeek)) count=\(String(describing: count))")
             } else {

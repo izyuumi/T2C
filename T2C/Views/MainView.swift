@@ -825,6 +825,9 @@ struct MainView: View {
         if let days = recurrence.daysOfWeek, !days.isEmpty, recurrence.frequency == .weekly {
             let dayNames = days.compactMap { weekdayName($0) }
             if !dayNames.isEmpty {
+                if recurrence.interval > 1 {
+                    desc += " " + String(localized: "recurrence.weeks")
+                }
                 desc += " " + dayNames.joined(separator: ", ")
             } else {
                 desc += " " + (recurrence.interval > 1 ? String(localized: "recurrence.weeks") : String(localized: "recurrence.week"))

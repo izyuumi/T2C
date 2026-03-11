@@ -22,6 +22,20 @@ struct RecurrenceRule: Codable, Equatable {
     var endDate: Date? = nil   // optional end date for recurrence
     var count: Int? = nil      // optional occurrence count ("10 times")
     var daysOfWeek: [Int]? = nil  // EKWeekday values: 1=Sun,2=Mon,3=Tue,4=Wed,5=Thu,6=Fri,7=Sat
+
+    var sanitizedInterval: Int {
+        max(interval, 1)
+    }
+
+    var sanitizedCount: Int? {
+        guard let count, count > 0 else { return nil }
+        return count
+    }
+
+    var sanitizedDaysOfWeek: [Int]? {
+        let validDays = (daysOfWeek ?? []).filter { (1...7).contains($0) }
+        return validDays.isEmpty ? nil : validDays
+    }
 }
 
 /// Represents a calendar event with required and optional fields
@@ -119,7 +133,7 @@ final class CalendarService {
             }
 
             let recurrenceEnd: EKRecurrenceEnd?
-            if let count = recurrence.count {
+            if let count = recurrence.sanitizedCount {
                 recurrenceEnd = EKRecurrenceEnd(occurrenceCount: count)
             } else if let endDate = recurrence.endDate {
                 recurrenceEnd = EKRecurrenceEnd(end: endDate)
@@ -127,14 +141,14 @@ final class CalendarService {
                 recurrenceEnd = nil
             }
 
-            let ekDaysOfWeek: [EKRecurrenceDayOfWeek]? = recurrence.daysOfWeek.flatMap { days -> [EKRecurrenceDayOfWeek]? in
+            let ekDaysOfWeek: [EKRecurrenceDayOfWeek]? = recurrence.sanitizedDaysOfWeek.flatMap { days -> [EKRecurrenceDayOfWeek]? in
                 let mapped = days.compactMap { EKWeekday(rawValue: $0).map { EKRecurrenceDayOfWeek($0) } }
                 return mapped.isEmpty ? nil : mapped
             }
 
             let rule = EKRecurrenceRule(
                 recurrenceWith: frequency,
-                interval: recurrence.interval,
+                interval: recurrence.sanitizedInterval,
                 daysOfTheWeek: ekDaysOfWeek,
                 daysOfTheMonth: nil,
                 monthsOfTheYear: nil,
@@ -144,7 +158,7 @@ final class CalendarService {
                 end: recurrenceEnd
             )
             ekEvent.recurrenceRules = [rule]
-            logger.info("add: applied recurrence rule frequency=\(recurrence.frequency.rawValue), interval=\(recurrence.interval), daysOfWeek=\(String(describing: recurrence.daysOfWeek)), count=\(String(describing: recurrence.count)), hasEndDate=\(recurrence.endDate != nil)")
+            logger.info("add: applied recurrence rule frequency=\(recurrence.frequency.rawValue), interval=\(recurrence.sanitizedInterval), daysOfWeek=\(String(describing: recurrence.sanitizedDaysOfWeek)), count=\(String(describing: recurrence.sanitizedCount)), hasEndDate=\(recurrence.endDate != nil)")
         }
 
         do {

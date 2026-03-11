@@ -251,6 +251,23 @@ final class CalendarServiceTests: XCTestCase {
         XCTAssertEqual(rule.endDate, endDate)
     }
 
+    func testRecurrenceRuleInitializationWithCountAndDaysOfWeek() {
+        // Given: Recurrence with explicit count and weekdays
+        let rule = RecurrenceRule(
+            frequency: .weekly,
+            interval: 2,
+            endDate: nil,
+            count: 5,
+            daysOfWeek: [2, 5]
+        )
+
+        // Then: New recurrence fields should be preserved
+        XCTAssertEqual(rule.frequency, .weekly)
+        XCTAssertEqual(rule.interval, 2)
+        XCTAssertEqual(rule.count, 5)
+        XCTAssertEqual(rule.daysOfWeek, [2, 5])
+    }
+
     func testRecurrenceRuleEquality() {
         // Given: Two identical recurrence rules
         let endDate = Date()
@@ -340,6 +357,27 @@ final class CalendarServiceTests: XCTestCase {
         XCTAssertEqual(decoded.frequency, .yearly)
         XCTAssertEqual(decoded.interval, 1)
         XCTAssertNil(decoded.endDate)
+    }
+
+    func testRecurrenceRuleEncodingDecodingWithCountAndDaysOfWeek() throws {
+        // Given: Rule with recurring weekdays and occurrence count
+        let originalRule = RecurrenceRule(
+            frequency: .weekly,
+            interval: 2,
+            endDate: nil,
+            count: 4,
+            daysOfWeek: [2, 4, 6]
+        )
+
+        // When: Encoding and decoding
+        let data = try JSONEncoder().encode(originalRule)
+        let decoded = try JSONDecoder().decode(RecurrenceRule.self, from: data)
+
+        // Then: New fields should round-trip
+        XCTAssertEqual(decoded.frequency, .weekly)
+        XCTAssertEqual(decoded.interval, 2)
+        XCTAssertEqual(decoded.count, 4)
+        XCTAssertEqual(decoded.daysOfWeek, [2, 4, 6])
     }
 
     // MARK: - RecurrenceRule.Frequency Tests
@@ -463,6 +501,22 @@ final class CalendarServiceTests: XCTestCase {
         XCTAssertEqual(rule.frequency, .weekly)
         XCTAssertEqual(rule.interval, 3)
         XCTAssertNotNil(rule.endDate)
+    }
+
+    func testRecurrenceRuleSanitization() {
+        // Given: Invalid recurrence values from external input
+        let rule = RecurrenceRule(
+            frequency: .weekly,
+            interval: 0,
+            endDate: nil,
+            count: 0,
+            daysOfWeek: [0, 2, 8, 5]
+        )
+
+        // Then: Sanitized values should be safe for EventKit/UI consumption
+        XCTAssertEqual(rule.sanitizedInterval, 1)
+        XCTAssertNil(rule.sanitizedCount)
+        XCTAssertEqual(rule.sanitizedDaysOfWeek, [2, 5])
     }
 
     func testComplexCalendarEventWithRecurrence() {
